@@ -8,6 +8,7 @@ from rest_framework.response import Response        # Added for custom responses
 from django.db.models import Count, Sum, Avg             # Added for data aggregation
 from .models import Farmer, Crop
 from .serializers import FarmerSerializer, CropSerializer
+from .sms import send_registration_sms
 
 class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all()
@@ -15,18 +16,28 @@ class CropViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 class FarmerViewSet(viewsets.ModelViewSet):
-    queryset = Farmer.objects.all()
+    queryset = Farmer.objects.all().order_by('-onboarded_at') # Newest farmers first    
     serializer_class = FarmerSerializer
+    permission_classes = [AllowAny] # We will override this in get_permissions()
 
-    # Custom permission logic: 
-    # Anyone can submit a form (create), but you must be logged in to read or edit.
-    def get_permissions(self):
-        if self.action == 'create':
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsAuthenticatedOrReadOnly]
-        return [permission() for permission in permission_classes]
 
+    def perform_create(self, serializer):
+        # 1. Save the farmer instance to PostgreSQL first
+        farmer = serializer.save()
+        
+        # 2. Extract the saved details
+        farmer_name = farmer.full_name
+        phone_number = farmer.phone_number
+        acreage = farmer.acreage
+        subcounty = farmer.subcounty
+
+        # 3. Trigger the Sandbox SMS transmission safely in the background
+        send_registration_sms(
+            farmer_name=farmer_name,
+            phone_number=phone_number,
+            acreage=acreage,
+            subcounty=subcounty
+        )
         # --- NEW ANALYTICS VIEW ---
 class RegionalAnalyticsView(APIView):
     # This is highly sensitive data; it MUST be locked behind JWT authentication
