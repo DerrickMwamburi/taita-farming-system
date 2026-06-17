@@ -7,6 +7,32 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const handleDownloadCSV = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('http://127.0.0.1:8000/api/export/farmers/', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) throw new Error('Export failed');
+      
+      // Convert the response into a downloadable file blob
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a hidden link, click it automatically, then delete it
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'taita_taveta_farmers.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert("Failed to download CSV report.");
+    }
+  };
+
   useEffect(() => {
     const fetchAnalytics = async () => {
       const token = localStorage.getItem('access_token');
@@ -62,15 +88,27 @@ export default function Dashboard() {
             <h1 className="text-3xl font-extrabold text-gray-900">Taita-Taveta Regional Analytics</h1>
             <p className="text-gray-500">Real-time agricultural business intelligence</p>
           </div>
-          <button 
-            onClick={() => {
-              localStorage.clear();
-              navigate('/login');
-            }}
-            className="bg-red-50 text-red-700 px-4 py-2 rounded-md font-semibold hover:bg-red-100 transition-colors text-sm"
-          >
-            Secure Logout
-          </button>
+          
+          {/* New Buttons Container */}
+          <div className="flex gap-3">
+            <button 
+              onClick={handleDownloadCSV}
+              className="bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 transition-colors text-sm shadow-sm flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              Export CSV
+            </button>
+
+            <button 
+              onClick={() => {
+                localStorage.clear();
+                navigate('/login');
+              }}
+              className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-50 transition-colors text-sm"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Top Metric Summary Cards */}

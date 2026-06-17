@@ -1,4 +1,6 @@
 # backend/management/views.py
+import csv
+from django.http import HttpResponse # Added for CSV export
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView            # Added for custom views
@@ -55,3 +57,36 @@ class RegionalAnalyticsView(APIView):
             'subcounty_distribution': list(subcounty_data),
             'crop_popularity': list(crop_data)
         })
+
+class ExportFarmersCSVView(APIView):
+    permission_classes = [IsAuthenticated] # Keep it locked down!
+
+    def get(self, request):
+        # 1. Set up the response to tell the browser "This is a downloadable file"
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="taita_taveta_farmers.csv"'
+
+        # 2. Create the CSV writer
+        writer = csv.writer(response)
+        
+        # 3. Write the Header Row
+        writer.writerow(['ID', 'Full Name', 'Phone Number', 'Subcounty', 'Acreage', 'Active Crops', 'Date Registered'])
+
+        # 4. Fetch all farmers and write their data row by row
+        farmers = Farmer.objects.all().prefetch_related('crops')
+        
+        for farmer in farmers:
+            # Because crops are a Many-to-Many relationship, we join them into a single string (e.g., "Maize, Green Grams")
+            crop_names = ", ".join([crop.name.replace('_', ' ') for crop in farmer.crops.all()])
+            
+            writer.writerow([
+                farmer.id,
+                farmer.full_name,
+                farmer.phone_number,
+                farmer.get_subcounty_display(),
+                farmer.acreage,
+                crop_names,
+                farmer.onboarded_at.strftime('%Y-%m-%d %H:%M') # Format the date cleanly
+            ])
+
+        return response

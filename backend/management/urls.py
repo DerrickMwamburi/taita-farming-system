@@ -1,7 +1,7 @@
 # backend/management/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FarmerViewSet, CropViewSet, RegionalAnalyticsView
+from .views import FarmerViewSet, CropViewSet, RegionalAnalyticsView, ExportFarmersCSVView
 
 router = DefaultRouter()
 router.register(r'farmers', FarmerViewSet)
@@ -11,4 +11,5 @@ urlpatterns = [
     path('', include(router.urls)),
     # Add the custom analytics endpoint here:
     path('analytics/regional/', RegionalAnalyticsView.as_view(), name='regional-analytics'),
+    path('export/farmers/', ExportFarmersCSVView.as_view(), name='export-farmers'),
 ]
