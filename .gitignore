@@ -1,0 +1,29 @@
+# =========================
+# Backend (Django & Python)
+# =========================
+backend/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+*.db
+.env
+backend/media/
+backend/staticfiles/
+
+# =========================
+# Frontend (React & Vite)
+# =========================
+client/node_modules/
+client/dist/
+client/dist-ssr/
+client/.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Operating System Junk
+# =========================
+.DS_Store
+Thumbs.db
