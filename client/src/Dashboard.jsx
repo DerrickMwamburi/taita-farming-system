@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -9,12 +10,10 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       const token = localStorage.getItem('access_token');
-      
       if (!token) {
         navigate('/login');
         return;
       }
-
       try {
         const response = await fetch('http://127.0.0.1:8000/api/analytics/regional/', {
           headers: {
@@ -22,94 +21,118 @@ export default function Dashboard() {
             'Content-Type': 'application/json'
           }
         });
-
         if (response.status === 401) {
-          // Token expired or invalid
           localStorage.removeItem('access_token');
           navigate('/login');
           return;
         }
-
         const result = await response.json();
         setData(result);
       } catch (err) {
         setError('Failed to load regional data.');
       }
     };
-
     fetchAnalytics();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    navigate('/login');
-  };
-
   if (error) return <div className="p-8 text-red-600 font-bold">{error}</div>;
-  if (!data) return <div className="p-8 text-gray-600 font-bold">Loading regional analytics...</div>;
+  if (!data) return <div className="p-8 text-gray-600 font-bold">Loading analytical data...</div>;
+
+  // Formatting backend subcounty data for the Bar Chart
+  const barChartData = data.subcounty_distribution.map(item => ({
+    name: item.subcounty.charAt(0) + item.subcounty.slice(1).toLowerCase(),
+    'Registered Farmers': item.count,
+    'Total Acres': parseFloat(item.total_acres || 0)
+  }));
+
+  // Formatting backend crop data for the Pie Chart
+  const pieChartData = data.crop_popularity.map(item => ({
+    name: item.name.replace('_', ' '),
+    value: item.farmer_count
+  }));
+
+  // Clean layout colors for the pie slices
+  const COLORS = ['#16a34a', '#d97706', '#2563eb', '#7c3aed'];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900">Taita-Taveta Operations Overview</h1>
-            <p className="text-gray-500">Real-time agricultural data aggregation</p>
+            <h1 className="text-3xl font-extrabold text-gray-900">Taita-Taveta Regional Analytics</h1>
+            <p className="text-gray-500">Real-time agricultural business intelligence</p>
           </div>
           <button 
-            onClick={handleLogout}
-            className="bg-red-100 text-red-700 px-4 py-2 rounded-md font-medium hover:bg-red-200 transition-colors"
+            onClick={() => {
+              localStorage.clear();
+              navigate('/login');
+            }}
+            className="bg-red-50 text-red-700 px-4 py-2 rounded-md font-semibold hover:bg-red-100 transition-colors text-sm"
           >
             Secure Logout
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Top Level Metrics */}
-          <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-700">Total Network Size</h3>
-              <p className="text-5xl font-black text-green-600 mt-2">{data.total_farmers}</p>
-              <p className="text-sm text-gray-500 mt-1">Active verified farmers</p>
-            </div>
+        {/* Top Metric Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Registered Farmers</h3>
+            <p className="text-4xl font-black text-green-600 mt-2">{data.total_farmers}</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Cultivated Footprint</h3>
+            <p className="text-4xl font-black text-amber-600 mt-2">{data.total_acreage} <span className="text-xl font-normal text-gray-500">Acres</span></p>
+          </div>
+        </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-700">Total Land Under Cultivation</h3>
-              <p className="text-5xl font-black text-amber-600 mt-2">{data.total_acreage} <span className="text-2xl">Acres</span></p>
-              <p className="text-sm text-gray-500 mt-1">Aggregated regional footprint</p>
+        {/* Charts Presentation Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Subcounty Acreage & Enrollment Bar Chart */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Zonal Production Footprint</h3>
+            <p className="text-sm text-gray-400 mb-6">Comparative view of total land and registration density per subcounty</p>
+            <div className="w-full h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barChartData}>
+                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} />
+                  <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip cursor={{ fill: '#f3f4f6' }} />
+                  <Legend />
+                  <Bar dataKey="Registered Farmers" fill="#16a34a" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Total Acres" fill="#d97706" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-
           </div>
 
-          {/* Subcounty Distribution */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-1">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Regional Distribution</h3>
-            <div className="space-y-4">
-              {data.subcounty_distribution.map((sc) => (
-                <div key={sc.subcounty} className="flex justify-between items-center border-b border-gray-50 pb-2">
-                  <span className="text-gray-600 font-medium">{sc.subcounty}</span>
-                  <span className="bg-green-100 text-green-800 py-1 px-3 rounded-full text-sm font-bold">
-                    {sc.count}
-                  </span>
-                </div>
-              ))}
+          {/* Crop Index Pie Chart */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-1">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Crop Diversity Index</h3>
+            <p className="text-sm text-gray-400 mb-6">Distribution share across active farms</p>
+            <div className="w-full h-64 flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Crop Popularity */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Active Crop Index</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {data.crop_popularity.map((crop) => (
-                <div key={crop.name} className="bg-gray-50 p-4 rounded-md border border-gray-100">
-                  <p className="text-sm text-gray-500">{crop.name.replace('_', ' ')}</p>
-                  <p className="text-2xl font-bold text-gray-800">{crop.farmer_count} farms</p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>
