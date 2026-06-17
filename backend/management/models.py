@@ -27,6 +27,7 @@ class Farmer(models.Model):
     full_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15, unique=True)
     subcounty = models.CharField(max_length=50, choices=SUBCOUNTY_CHOICES)
+    acreage = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     crops = models.ManyToManyField(Crop, related_name='farmers')
     onboarded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

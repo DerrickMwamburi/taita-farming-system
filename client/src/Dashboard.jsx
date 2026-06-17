@@ -66,11 +66,21 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Top Level Metric */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 md:col-span-3">
-            <h3 className="text-lg font-semibold text-gray-700">Total Network Size</h3>
-            <p className="text-5xl font-black text-green-600 mt-2">{data.total_farmers}</p>
-            <p className="text-sm text-gray-500 mt-1">Active verified farmers in the system</p>
+          {/* Top Level Metrics */}
+          <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-700">Total Network Size</h3>
+              <p className="text-5xl font-black text-green-600 mt-2">{data.total_farmers}</p>
+              <p className="text-sm text-gray-500 mt-1">Active verified farmers</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-700">Total Land Under Cultivation</h3>
+              <p className="text-5xl font-black text-amber-600 mt-2">{data.total_acreage} <span className="text-2xl">Acres</span></p>
+              <p className="text-sm text-gray-500 mt-1">Aggregated regional footprint</p>
+            </div>
+
           </div>
 
           {/* Subcounty Distribution */}

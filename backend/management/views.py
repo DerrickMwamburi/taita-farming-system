@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView            # Added for custom views
 from rest_framework.response import Response        # Added for custom responses
-from django.db.models import Count                  # Added for data aggregation
+from django.db.models import Count, Sum, Avg             # Added for data aggregation
 from .models import Farmer, Crop
 from .serializers import FarmerSerializer, CropSerializer
 
@@ -33,9 +33,15 @@ class RegionalAnalyticsView(APIView):
     def get(self, request):
         total_farmers = Farmer.objects.count()
         
-        # Count farmers per subcounty
+       # Calculate total acreage across the entire network
+        total_acreage_dict = Farmer.objects.aggregate(total=Sum('acreage'))
+        total_acreage = total_acreage_dict['total'] or 0.00
+        
+        # Count farmers AND sum/average acreage per subcounty
         subcounty_data = Farmer.objects.values('subcounty').annotate(
-            count=Count('id')
+            count=Count('id'),
+            total_acres=Sum('acreage'),
+            avg_acres=Avg('acreage')
         ).order_by('-count')
         
         # Count how many farmers are growing each crop
@@ -45,6 +51,7 @@ class RegionalAnalyticsView(APIView):
         
         return Response({
             'total_farmers': total_farmers,
+            'total_acreage': round(total_acreage, 2),
             'subcounty_distribution': list(subcounty_data),
             'crop_popularity': list(crop_data)
         })

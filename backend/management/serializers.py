@@ -21,5 +21,5 @@ class FarmerSerializer(serializers.ModelSerializer):
         # We now use the standard full_name field
         fields = [
             'id', 'full_name', 'phone_number', 
-            'subcounty', 'crops', 'crop_details', 'onboarded_at'
+            'subcounty',  'acreage', 'crops', 'crop_details', 'onboarded_at'
         ]
