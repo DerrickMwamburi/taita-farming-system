@@ -16,10 +16,13 @@ class FarmerSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+
     class Meta:
         model = Farmer
         # We now use the standard full_name field
         fields = [
             'id', 'full_name', 'phone_number', 
-            'subcounty',  'acreage', 'crops', 'crop_details', 'onboarded_at'
+            'subcounty',  'acreage', 'crops', 'crop_details',
+            'password', 'onboarded_at'
         ]

@@ -1,5 +1,6 @@
 # backend/management/views.py
 import csv
+from django.contrib.auth.models import User
 from django.http import HttpResponse # Added for CSV export
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
@@ -9,6 +10,8 @@ from django.db.models import Count, Sum, Avg             # Added for data aggreg
 from .models import Farmer, Crop
 from .serializers import FarmerSerializer, CropSerializer
 from .sms import send_registration_sms
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all()
@@ -22,22 +25,38 @@ class FarmerViewSet(viewsets.ModelViewSet):
 
 
     def perform_create(self, serializer):
-        # 1. Save the farmer instance to PostgreSQL first
-        farmer = serializer.save()
+       # 1. Pop the password out of the data before saving the farmer
+        password = serializer.validated_data.pop('password')
+        phone_number = serializer.validated_data.get('phone_number')
         
-        # 2. Extract the saved details
+        # 2. Create the secure Django auth account using the phone number as the username
+        user_account = User.objects.create_user(username=phone_number, password=password)
+        
+        # 3. Save the Farmer to the database, explicitly linking the new user account
+        farmer = serializer.save(user=user_account)
+        
+        # 4. Trigger your existing SMS code
         farmer_name = farmer.full_name
-        phone_number = farmer.phone_number
         acreage = farmer.acreage
         subcounty = farmer.subcounty
 
-        # 3. Trigger the Sandbox SMS transmission safely in the background
         send_registration_sms(
             farmer_name=farmer_name,
             phone_number=phone_number,
             acreage=acreage,
             subcounty=subcounty
         )
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        """Returns the profile of the currently logged-in farmer."""
+        try:
+            # request.user is automatically determined by the JWT token!
+            farmer = request.user.farmer 
+            serializer = self.get_serializer(farmer)
+            return Response(serializer.data)
+        except Exception:
+            return Response({"error": "No farmer profile linked to this account."}, status=404)
+            
         # --- NEW ANALYTICS VIEW ---
 class RegionalAnalyticsView(APIView):
     # This is highly sensitive data; it MUST be locked behind JWT authentication

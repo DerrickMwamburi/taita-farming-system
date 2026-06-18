@@ -16,6 +16,7 @@ class Crop(models.Model):
         return self.get_name_display()
 
 class Farmer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     SUBCOUNTY_CHOICES = [
         ('MWATATE', 'Mwatate'),
         ('VOI', 'Voi'),
