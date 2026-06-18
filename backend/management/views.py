@@ -46,14 +46,28 @@ class FarmerViewSet(viewsets.ModelViewSet):
             acreage=acreage,
             subcounty=subcounty
         )
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+
+    # 1. Add 'patch' and 'put' to the allowed methods
+    @action(detail=False, methods=['get', 'patch', 'put'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        """Returns the profile of the currently logged-in farmer."""
+        """Returns or updates the profile of the currently logged-in farmer."""
         try:
-            # request.user is automatically determined by the JWT token!
             farmer = request.user.farmer 
-            serializer = self.get_serializer(farmer)
-            return Response(serializer.data)
+            
+            # 2. If it's a GET request, just return the data like before
+            if request.method == 'GET':
+                serializer = self.get_serializer(farmer)
+                return Response(serializer.data)
+                
+            # 3. If it's a PATCH request, update the data securely
+            elif request.method in ['PATCH', 'PUT']:
+                # partial=True allows them to update just one field (like acreage) without sending everything
+                serializer = self.get_serializer(farmer, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+                return Response(serializer.errors, status=400)
+                
         except Exception:
             return Response({"error": "No farmer profile linked to this account."}, status=404)
             
