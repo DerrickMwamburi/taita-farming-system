@@ -12,6 +12,14 @@ class Crop(models.Model):
     name = models.CharField(max_length=50, choices=CROP_CHOICES, unique=True)
     description = models.TextField(blank=True, null=True)
 
+    # --- NEW SMART FEATURES ---
+    # How many units (e.g., bags/kg) a standard acre produces
+    expected_yield_per_acre = models.DecimalField(max_digits=6, decimal_places=2, default=15.00) 
+    # Current market price per unit in KES
+    price_per_unit = models.DecimalField(max_digits=8, decimal_places=2, default=3000.00)
+    # What are we measuring? (bags, kg, tons)
+    unit_measure = models.CharField(max_length=50, default='90kg bags')
+
     def __str__(self):
         return self.get_name_display()
 
