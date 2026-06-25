@@ -1,5 +1,6 @@
 # backend/management/views.py
 import csv
+import random
 from django.contrib.auth.models import User
 from django.http import HttpResponse # Added for CSV export
 from rest_framework import viewsets
@@ -7,11 +8,10 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticate
 from rest_framework.views import APIView            # Added for custom views
 from rest_framework.response import Response        # Added for custom responses
 from django.db.models import Count, Sum, Avg             # Added for data aggregation
-from .models import Farmer, Crop
+from .models import Farmer, Crop, FarmActivity
 from .serializers import FarmerSerializer, CropSerializer
 from .sms import send_registration_sms
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import action, api_view, permission_classes
 
 class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all()
@@ -134,3 +134,83 @@ class ExportFarmersCSVView(APIView):
             ])
 
         return response
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def mock_market_prices(request):
+    """
+    Simulates the Shamba Records / Africa API market price endpoint for Taita-Taveta.
+    Returns slightly randomized data so it feels 'live' every time you refresh.
+    """
+    
+    # We add slight random fluctuations to make the prototype feel like a live market feed
+    fluctuation = random.choice([-100, 0, 50, 150, -50])
+    
+    mock_data = {
+        "status": "success",
+        "source": "Mock Agritech API Sandbox",
+        "region": "taita-taveta",
+        "prices": [
+            {
+                "crop_name": "Maize (90kg)",
+                "current_price": 3200 + fluctuation,
+                "price_trend": "up" if fluctuation > 0 else ("down" if fluctuation < 0 else "stable")
+            },
+            {
+                "crop_name": "Groundnuts (90kg)",
+                "current_price": 8500 + random.choice([-200, 0, 300]),
+                "price_trend": "down"
+            },
+            {
+                "crop_name": "Green Gram (Crate)",
+                "current_price": 2800 + random.choice([-50, 50, 100]),
+                "price_trend": "up"
+            },
+            {
+                "crop_name": "Macadamia (Net)",
+                "current_price": 1200 + random.choice([0, -20, 20]),
+                "price_trend": "stable"
+            }
+        ]
+    }
+    
+    return Response(mock_data)
+
+# In backend/management/views.py
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def farm_activities(request):
+    # Change request.user.farmerprofile to request.user.farmer
+    farmer = request.user.farmer
+    
+    if request.method == 'GET':
+        activities = FarmActivity.objects.filter(farmer=farmer).order_by('-date_added')
+        data = [{"id": a.id, "task": a.task, "cost": float(a.cost), "completed": a.completed} for a in activities]
+        return Response(data)
+        
+    elif request.method == 'POST':
+        task = request.data.get('task')
+        cost = request.data.get('cost', 0)
+        activity = FarmActivity.objects.create(farmer=farmer, task=task, cost=cost)
+        return Response({"id": activity.id, "task": activity.task, "cost": float(activity.cost), "completed": activity.completed})
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def farm_activity_detail(request, pk):
+    try:
+        # Change request.user.farmerprofile to request.user.farmer
+        activity = FarmActivity.objects.get(pk=pk, farmer=request.user.farmer)
+    except FarmActivity.DoesNotExist:
+        return Response({'error': 'Not found'}, status=404)
+        
+    if request.method == 'PATCH':
+        if 'task' in request.data: activity.task = request.data['task']
+        if 'cost' in request.data: activity.cost = request.data['cost']
+        if 'completed' in request.data: activity.completed = request.data['completed']
+        activity.save()
+        return Response({"id": activity.id, "task": activity.task, "cost": float(activity.cost), "completed": activity.completed})
+        
+    elif request.method == 'DELETE':
+        activity.delete()
+        return Response(status=204)      
