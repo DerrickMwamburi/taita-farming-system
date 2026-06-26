@@ -2,26 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Crop(models.Model):
-    CROP_CHOICES = [
-        ('MAIZE', 'Maize'),
-        ('GROUNDNUTS', 'Groundnuts'),
-        ('GREEN_GRAMS', 'Green Grams'),
-        ('MACADAMIA', 'Macadamia'),
-        ('OTHER', 'Other'),
-    ]
-    name = models.CharField(max_length=50, choices=CROP_CHOICES, unique=True)
+    # Notice we removed CROP_CHOICES entirely!
+    name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)
 
-    # --- NEW SMART FEATURES ---
-    # How many units (e.g., bags/kg) a standard acre produces
+    # --- SMART FEATURES ---
     expected_yield_per_acre = models.DecimalField(max_digits=6, decimal_places=2, default=15.00) 
-    # Current market price per unit in KES
     price_per_unit = models.DecimalField(max_digits=8, decimal_places=2, default=3000.00)
-    # What are we measuring? (bags, kg, tons)
     unit_measure = models.CharField(max_length=50, default='90kg bags')
 
     def __str__(self):
-        return self.get_name_display()
+        # Changed this from get_name_display() because choices are gone
+        return self.name
 
 class Farmer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)

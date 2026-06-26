@@ -10,7 +10,7 @@ export default function Login() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
-    phone_number: '+254',
+    phone_number: '',
     password: ''
   });
 
@@ -100,7 +100,7 @@ export default function Login() {
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number (Farmer), Admin (username)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone No.+254 (Farmer), Admin (username)</label>
               <div className="mt-1">
                 <input required type="text" placeholder="+254700000000"
                   className="appearance-none block w-full px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
