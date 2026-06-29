@@ -14,6 +14,7 @@ export default function Dashboard() {
   // --- STATE MANAGEMENT ---
   const [farmers, setFarmers] = useState([]);
   const [availableCrops, setAvailableCrops] = useState([]); 
+  const [alerts, setAlerts] = useState([]); // NEW: Holds system alerts
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,6 +37,12 @@ export default function Dashboard() {
     expected_yield_per_acre: '',
     price_per_unit: '',
     unit_measure: '90kg bags'
+  });
+
+  // --- ALERTS BROADCASTER STATE ---
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [alertData, setAlertData] = useState({
+    title: '', message: '', category: 'KALRO'
   });
 
   // Chart Colors
@@ -61,9 +68,10 @@ export default function Dashboard() {
     if (!token) return navigate('/login');
 
     try {
-      const [farmersRes, cropsRes] = await Promise.all([
+      const [farmersRes, cropsRes, alertsRes] = await Promise.all([
         fetch('http://127.0.0.1:8000/api/farmers/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/crops/')
+        fetch('http://127.0.0.1:8000/api/crops/'),
+        fetch('http://127.0.0.1:8000/api/alerts/')
       ]);
 
       if (!farmersRes.ok || !cropsRes.ok) throw new Error('Failed to load database.');
@@ -73,10 +81,52 @@ export default function Dashboard() {
       
       setFarmers(farmersData);
       setAvailableCrops(cropsData);
+      
+      if (alertsRes.ok) {
+        const alertsData = await alertsRes.json();
+        setAlerts(alertsData);
+      }
     } catch (err) {
       setError('Connection refused. Ensure you are logged in as a highly-privileged Admin.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // --- ACTION HANDLERS: ALERTS ---
+  const handleBroadcastAlert = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('access_token');
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/alerts/', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(alertData)
+      });
+
+      if (!response.ok) throw new Error('Failed to broadcast');
+      
+      const newAlert = await response.json();
+      setAlerts([newAlert, ...alerts]); 
+      setIsBroadcasting(false);
+      setAlertData({ title: '', message: '', category: 'KALRO' });
+    } catch (err) {
+      alert("Error broadcasting alert.");
+    }
+  };
+
+  const handleRevokeAlert = async (id) => {
+    const token = localStorage.getItem('access_token');
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/alerts/${id}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to revoke');
+      setAlerts(alerts.filter(a => a.id !== id));
+    } catch (err) {
+      alert("Error revoking alert.");
     }
   };
 
@@ -85,12 +135,11 @@ export default function Dashboard() {
     e.preventDefault();
     const token = localStorage.getItem('access_token');
 
-    // Format the name and ensure math fields are actual numbers
     const formattedData = {
       name: newCropData.name.toUpperCase().replace(/\s+/g, '_'),
       unit_measure: newCropData.unit_measure,
       price_per_unit: Number(newCropData.price_per_unit),
-      expected_yield_per_acre: Number(newCropData.expected_yield_per_acre || 15) // Default to 15 if left blank
+      expected_yield_per_acre: Number(newCropData.expected_yield_per_acre || 15) 
     };
 
     try {
@@ -105,7 +154,7 @@ export default function Dashboard() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Django Error:", errorData); // Logs the exact error to your browser console!
+        console.error("Django Error:", errorData); 
         throw new Error('Failed to create crop');
       }
       
@@ -324,6 +373,73 @@ export default function Dashboard() {
             </div>
           </>
         )}
+
+        {/* --- ALERTS & INSIGHTS BROADCASTER --- */}
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 mb-8 p-6 transition-colors">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                Network Broadcaster
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Publish live updates, weather warnings, and market notices directly to all farmer portals.</p>
+            </div>
+            <button 
+              onClick={() => setIsBroadcasting(!isBroadcasting)}
+              className="mt-4 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2"
+            >
+              {isBroadcasting ? 'Cancel' : '+ New Broadcast'}
+            </button>
+          </div>
+
+          {isBroadcasting && (
+            <form onSubmit={handleBroadcastAlert} className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-5 mb-6 animate-fade-in space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Alert Title</label>
+                  <input required type="text" placeholder="e.g., Heavy Rainfall Expected" value={alertData.title} onChange={e => setAlertData({...alertData, title: e.target.value})} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Category</label>
+                  <select value={alertData.category} onChange={e => setAlertData({...alertData, category: e.target.value})} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                    <option value="WEATHER">Weather Alert</option>
+                    <option value="KALRO">KALRO Advisory</option>
+                    <option value="MARKET">Market Update</option>
+                    <option value="SYSTEM">System Notice</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">Message</label>
+                <textarea required rows="3" placeholder="Type the full advisory message here..." value={alertData.message} onChange={e => setAlertData({...alertData, message: e.target.value})} className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+              <div className="flex justify-end">
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors">Publish Live Broadcast</button>
+              </div>
+            </form>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {alerts.length === 0 ? (
+              <div className="col-span-full text-center text-sm text-gray-500 dark:text-gray-400 py-4 italic">No active broadcasts.</div>
+            ) : (
+              alerts.map(alert => (
+                <div key={alert.id} className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-lg p-4 relative">
+                  <button onClick={() => handleRevokeAlert(alert.id)} className="absolute top-3 right-3 text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-900/30 p-1.5 rounded-md transition-colors" title="Revoke Broadcast">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    alert.category === 'WEATHER' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
+                    alert.category === 'KALRO' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                  }`}>{alert.category}</span>
+                  <h3 className="font-bold text-gray-900 dark:text-white mt-2 text-sm">{alert.title}</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">{alert.message}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
         {/* --- CROP CATALOG MANAGER --- */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 mb-8 p-6 transition-colors">

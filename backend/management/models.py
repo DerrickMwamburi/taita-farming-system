@@ -49,3 +49,23 @@ class FarmActivity(models.Model):
     def __str__(self):
         # Update this to match the fields in your actual Farmer model
         return f"{self.task} - {self.farmer.phone_number}"
+
+class SystemAlert(models.Model):
+    CATEGORY_CHOICES = [
+        ('WEATHER', 'Weather Alert'),
+        ('KALRO', 'KALRO Advisory'),
+        ('MARKET', 'Market Update'),
+        ('SYSTEM', 'System Notice'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='SYSTEM')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at'] # Ensures the newest alerts always show up first
+
+    def __str__(self):
+        return f"{self.get_category_display()}: {self.title}"

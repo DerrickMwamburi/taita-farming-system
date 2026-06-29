@@ -23,9 +23,13 @@ export default function MyFarm() {
   const [editTaskText, setEditTaskText] = useState('');
   const [editTaskCost, setEditTaskCost] = useState('');
 
+  // --- NEW: ALERTS STATE ---
+  const [alerts, setAlerts] = useState([]);
+
   useEffect(() => {
     fetchMyProfile();
     fetchActivities();
+    fetchAlerts(); // Trigger the new fetch
     fetch('http://127.0.0.1:8000/api/crops/')
       .then(res => res.json())
       .then(data => setAvailableCrops(data))
@@ -46,6 +50,21 @@ export default function MyFarm() {
     } catch (err) {
       setError('Could not securely load your farm data.');
       localStorage.clear();
+    }
+  };
+
+  // --- NEW: FETCH LIVE BROADCASTS ---
+  const fetchAlerts = async () => {
+    const token = localStorage.getItem('access_token');
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/alerts/', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setAlerts(await response.json());
+      }
+    } catch (err) {
+      console.error("Error fetching alerts", err);
     }
   };
 
@@ -158,21 +177,13 @@ export default function MyFarm() {
     } catch (err) { console.error("Error deleting activity", err); }
   };
 
-  // --- NEW: CSV EXPORT FUNCTIONALITY ---
   const exportToCSV = () => {
     const headers = ["Task Description", "Cost (KES)", "Completed Status"];
-    
-    // Map the data to CSV format
     const csvRows = activities.map(act => {
-      // Wrap text in quotes to handle any commas in the task description
       const safeTask = `"${act.task.replace(/"/g, '""')}"`;
       return `${safeTask},${act.cost},${act.completed ? 'Yes' : 'No'}`;
     });
-
-    // Combine headers and rows
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...csvRows].join('\n');
-    
-    // Create download link and trigger
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
@@ -182,7 +193,7 @@ export default function MyFarm() {
     document.body.removeChild(link);
   };
 
-  // --- NEW: CHART DATA CALCULATIONS ---
+  // --- CHART DATA CALCULATIONS ---
   const totalExpenses = activities.reduce((sum, act) => sum + Number(act.cost), 0);
   const projectedRevenue = profile ? Number(profile.projected_revenue_kes) : 0;
   const netProfit = projectedRevenue - totalExpenses;
@@ -192,7 +203,7 @@ export default function MyFarm() {
       name: 'Season Financials',
       Revenue: projectedRevenue,
       Expenses: totalExpenses,
-      Profit: netProfit > 0 ? netProfit : 0 // Don't graph negative profit on this scale
+      Profit: netProfit > 0 ? netProfit : 0 
     }
   ];
 
@@ -290,7 +301,6 @@ export default function MyFarm() {
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">Activity & Expense Log</h3>
                   <p className="text-sm text-gray-500 mt-1">Track your labor, inputs, and costs.</p>
                 </div>
-                {/* NEW CSV EXPORT BUTTON */}
                 <button 
                   onClick={exportToCSV}
                   className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg transition-colors"
@@ -364,7 +374,6 @@ export default function MyFarm() {
                 <div className="bg-white/10 px-4 py-3 rounded-lg mb-2"><p className="text-xs text-green-200">Based on active acreage</p><p className="text-sm font-bold text-white">Assuming 15 Bags / Acre</p></div>
               </div>
               
-              {/* --- NEW: RECHARTS VISUALIZER --- */}
               <div className="p-5 bg-white dark:bg-gray-900 border-t border-green-800/30">
                 <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-4">Profit Margin Visualizer</h4>
                 <div className="h-48 w-full">
@@ -384,6 +393,48 @@ export default function MyFarm() {
               </div>
             </div>
 
+            {/* --- NEW: DYNAMIC LIVE ALERTS --- */}
+            <div className="space-y-4">
+              <h3 className="font-bold text-gray-900 dark:text-white text-lg flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                Network Broadcasts
+              </h3>
+              
+              {alerts.length === 0 ? (
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5 border border-gray-200 dark:border-gray-700 text-center">
+                  <p className="text-sm text-gray-500 italic">No active network broadcasts at this time.</p>
+                </div>
+              ) : (
+                alerts.map(alert => {
+                  let bgClass = "bg-purple-50 dark:bg-purple-900/20"; 
+                  let borderClass = "border-purple-200 dark:border-purple-800/50"; 
+                  let textClass = "text-purple-800 dark:text-purple-400";
+                  
+                  if (alert.category === 'WEATHER') {
+                    bgClass = "bg-blue-50 dark:bg-blue-900/20"; borderClass = "border-blue-200 dark:border-blue-800/50"; textClass = "text-blue-800 dark:text-blue-400";
+                  } else if (alert.category === 'KALRO') {
+                    bgClass = "bg-green-50 dark:bg-green-900/20"; borderClass = "border-green-200 dark:border-green-800/50"; textClass = "text-green-800 dark:text-green-400";
+                  } else if (alert.category === 'MARKET') {
+                    bgClass = "bg-yellow-50 dark:bg-yellow-900/20"; borderClass = "border-yellow-200 dark:border-yellow-800/50"; textClass = "text-yellow-800 dark:text-yellow-500";
+                  }
+
+                  return (
+                    <div key={alert.id} className={`${bgClass} rounded-2xl border ${borderClass} p-5 shadow-sm`}>
+                      <div className="flex gap-3">
+                        <div>
+                          <h4 className={`font-bold ${textClass} text-sm mb-1 flex items-center gap-2`}>
+                            <span className="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+                            {alert.title}
+                          </h4>
+                          <p className={`text-sm opacity-90 leading-relaxed ${textClass}`}>{alert.message}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center"><h3 className="font-bold dark:text-white">Local Weather</h3><span className="text-xs text-gray-500">{profile.subcounty}</span></div>
               <div className="p-5 space-y-4">
@@ -398,15 +449,6 @@ export default function MyFarm() {
               </div>
             </div>
 
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-2xl border border-yellow-200 dark:border-yellow-800/50 p-5">
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <div>
-                  <h4 className="font-bold text-yellow-800 dark:text-yellow-500 text-sm mb-1">KALRO Advisory</h4>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-600/90 leading-relaxed">Based on your registered crops, ensure soils are well-drained ahead of the short rains to prevent root rot.</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticate
 from rest_framework.views import APIView            # Added for custom views
 from rest_framework.response import Response        # Added for custom responses
 from django.db.models import Count, Sum, Avg             # Added for data aggregation
-from .models import Farmer, Crop, FarmActivity
-from .serializers import FarmerSerializer, CropSerializer
+from .models import Farmer, Crop, FarmActivity,SystemAlert
+from .serializers import FarmerSerializer, CropSerializer, SystemAlertSerializer
 from .sms import send_registration_sms
 from rest_framework.decorators import action, api_view, permission_classes
 
@@ -214,3 +214,7 @@ def farm_activity_detail(request, pk):
     elif request.method == 'DELETE':
         activity.delete()
         return Response(status=204)      
+
+class SystemAlertViewSet(viewsets.ModelViewSet):
+    queryset = SystemAlert.objects.all()
+    serializer_class = SystemAlertSerializer

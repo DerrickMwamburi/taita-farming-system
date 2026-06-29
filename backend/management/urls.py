@@ -1,11 +1,12 @@
 # backend/management/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FarmerViewSet, CropViewSet, RegionalAnalyticsView, ExportFarmersCSVView
+from .views import FarmerViewSet, CropViewSet, RegionalAnalyticsView, ExportFarmersCSVView, SystemAlertViewSet
 from . import views
 router = DefaultRouter()
 router.register(r'farmers', FarmerViewSet)
 router.register(r'crops', CropViewSet)
+router.register(r'alerts', SystemAlertViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

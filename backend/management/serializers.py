@@ -1,6 +1,6 @@
 # backend/management/serializers.py
 from rest_framework import serializers
-from .models import Farmer, Crop
+from .models import Farmer, Crop, SystemAlert
 
 class CropSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,3 +56,8 @@ class FarmerSerializer(serializers.ModelSerializer):
             'subcounty',  'acreage', 'crops', 'crop_details',
             'password', 'onboarded_at', 'projected_revenue_kes'
         ]
+
+class SystemAlertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SystemAlert
+        fields = '__all__'
