@@ -533,10 +533,15 @@ export default function Dashboard() {
 
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingFarmerId === farmer.id ? (
-                        <select value={editFormData.subcounty} onChange={(e) => setEditFormData({...editFormData, subcounty: e.target.value})} className="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                          <option value="">Select Subcounty...</option>
-                          {SUBCOUNTY_CHOICES.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-                        </select>
+                        <select 
+  value={editFormData.subcounty} 
+  // ADDED .toUpperCase() to ensure Django accepts the string format perfectly
+  onChange={(e) => setEditFormData({...editFormData, subcounty: e.target.value.toUpperCase()})} 
+  className="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+>
+  <option value="">Select Subcounty...</option>
+  {SUBCOUNTY_CHOICES.map(loc => <option key={loc} value={loc.toUpperCase()}>{loc}</option>)}
+</select>
                       ) : (
                         <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 border border-gray-200 uppercase">{farmer.subcounty}</span>
                       )}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import ThemeToggle from './ThemeToggle'; // Assuming ThemeToggle is in the same folder
+import ThemeToggle from './ThemeToggle';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,8 +9,12 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // --- NEW: LOGIN TYPE STATE ---
+  const [loginType, setLoginType] = useState('farmer'); // 'farmer' | 'admin'
+
+  // Updated state to use a generic 'username' key since it handles both phone numbers and admin names
   const [formData, setFormData] = useState({
-    phone_number: '',
+    username: '',
     password: ''
   });
 
@@ -31,19 +35,20 @@ export default function Login() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: formData.phone_number,
+          username: formData.username,
           password: formData.password
         })
       });
 
       if (!response.ok) {
-        throw new Error('Invalid phone number or password.');
+        throw new Error(`Invalid ${loginType === 'farmer' ? 'phone number' : 'username'} or password.`);
       }
 
       const data = await response.json();
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
 
+      // Route based on access level
       const profileResponse = await fetch('http://127.0.0.1:8000/api/farmers/me/', {
         headers: { 'Authorization': `Bearer ${data.access}` }
       });
@@ -61,10 +66,17 @@ export default function Login() {
     }
   };
 
+  // Helper function to switch tabs and clear out the input field
+  const handleTabSwitch = (type) => {
+    setLoginType(type);
+    setFormData({ ...formData, username: '' });
+    setError('');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
       
-      {/* Brand Header with Toggle */}
+      {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-end mb-4 px-4">
           <ThemeToggle />
@@ -73,22 +85,46 @@ export default function Login() {
           <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">AgriNet<span className="text-green-600">.</span></span>
         </Link>
-        <h2 className="mt-2 text-center text-2xl font-extrabold text-gray-900 dark:text-white">Sign in to your account</h2>
+        <h2 className="mt-2 text-center text-2xl font-extrabold text-gray-900 dark:text-white">Account Access</h2>
         <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Or{' '}
+          Not in the Taita Taveta cooperative yet?{' '}
           <Link to="/register" className="font-medium text-green-600 hover:text-green-500 transition-colors">
-            register your farm today
+            Register your farm
           </Link>
         </p>
       </div>
 
       {/* Form Card Container */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-gray-900 py-8 px-4 shadow-xl shadow-gray-200/50 dark:shadow-none sm:rounded-2xl sm:px-10 border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+        <div className="bg-white dark:bg-gray-900 pt-6 pb-8 px-4 shadow-xl shadow-gray-200/50 dark:shadow-none sm:rounded-2xl sm:px-10 border border-gray-100 dark:border-gray-800 transition-colors duration-300">
           
+          {/* --- NEW: TAB SWITCHER --- */}
+          <div className="flex p-1 mb-8 bg-gray-100 dark:bg-gray-800 rounded-xl">
+            <button
+              onClick={() => handleTabSwitch('farmer')}
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${
+                loginType === 'farmer' 
+                  ? 'bg-white dark:bg-gray-900 text-green-600 dark:text-green-500 shadow-sm' 
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+            >
+              Farmer Portal
+            </button>
+            <button
+              onClick={() => handleTabSwitch('admin')}
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${
+                loginType === 'admin' 
+                  ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-500 shadow-sm' 
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+            >
+              System Admin
+            </button>
+          </div>
+
           {showSuccess && (
             <div className="mb-6 bg-green-50 dark:bg-green-900/30 border-l-4 border-green-500 p-4 rounded-md">
-              <p className="text-sm text-green-700 dark:text-green-300 font-medium">Registration successful! Please sign in.</p>
+              <p className="text-sm text-green-700 dark:text-green-300 font-medium">Registration successful! Please sign in below.</p>
             </div>
           )}
 
@@ -99,40 +135,70 @@ export default function Login() {
           )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
+            
+            {/* DYNAMIC IDENTIFIER FIELD */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone No.+254 (Farmer), Admin (username)</label>
-              <div className="mt-1">
-                <input required type="text" placeholder="+254700000000"
-                  className="appearance-none block w-full px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
-                  value={formData.phone_number} onChange={e => setFormData({...formData, phone_number: e.target.value})} 
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {loginType === 'farmer' ? 'Registered Phone Number' : 'Admin Username'}
+              </label>
+              <div className="mt-1 relative">
+                {/* Optional visual cue based on role */}
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  {loginType === 'farmer' ? (
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                  ) : (
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                  )}
+                </div>
+                <input 
+                  required 
+                  type="text" 
+                  placeholder={loginType === 'farmer' ? '+254700000000' : 'admin_katute'}
+                  className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
+                  value={formData.username} 
+                  onChange={e => setFormData({...formData, username: e.target.value})} 
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-              <div className="mt-1">
-                <input required type="password" 
-                  className="appearance-none block w-full px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
-                  value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} 
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <input 
+                  required 
+                  type="password" 
+                  placeholder="••••••••"
+                  className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
+                  value={formData.password} 
+                  onChange={e => setFormData({...formData, password: e.target.value})} 
                 />
               </div>
             </div>
 
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center">
-                <input id="remember-me" type="checkbox" className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded" />
+                <input id="remember-me" type="checkbox" className={`h-4 w-4 rounded focus:ring-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 ${loginType === 'admin' ? 'text-blue-600 focus:ring-blue-500' : 'text-green-600 focus:ring-green-500'}`} />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">Remember me</label>
               </div>
               <div className="text-sm">
-                <a href="#" className="font-medium text-green-600 hover:text-green-500 transition-colors">Forgot password?</a>
+                <a href="#" className={`font-medium transition-colors ${loginType === 'admin' ? 'text-blue-600 hover:text-blue-500' : 'text-green-600 hover:text-green-500'}`}>Forgot password?</a>
               </div>
             </div>
 
             <div className="pt-2">
-              <button type="submit" disabled={loading} 
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 transition-all hover:shadow-lg">
-                {loading ? 'Authenticating...' : 'Secure Sign In'}
+              <button 
+                type="submit" 
+                disabled={loading} 
+                className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 transition-all hover:shadow-lg ${
+                  loginType === 'admin' 
+                    ? 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500' 
+                    : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                }`}
+              >
+                {loading ? 'Authenticating...' : `Sign in as ${loginType === 'farmer' ? 'Farmer' : 'Admin'}`}
               </button>
             </div>
           </form>
