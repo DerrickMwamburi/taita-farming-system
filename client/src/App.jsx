@@ -4,6 +4,9 @@ import Register from './Register';
 import Login from './Login'; // 1. Import it here
 import Dashboard from './Dashboard'; // Make sure your dashboard is imported too!
 import MyFarm from './MyFarm'; // If you have a MyFarm component for the farmer's profile page
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
+import ContactSupport from './ContactSupport';
 export default function App() {
   return (
     <Routes>
@@ -12,6 +15,9 @@ export default function App() {
       <Route path="/login" element={<Login />} /> {/* 2. Add the route here */}
       <Route path="/dashboard" element={<Dashboard />} /> {/* 3. Add the dashboard route */}
       <Route path="/my-farm" element={<MyFarm />} /> {/* 4. Add the MyFarm route */}
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/support" element={<ContactSupport />} />
     </Routes>
   );
 }
