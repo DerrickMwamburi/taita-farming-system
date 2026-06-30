@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { Sprout, Phone, Shield, Lock, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,12 +10,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // --- NEW: LOGIN TYPE STATE ---
+  // --- LOGIN TYPE STATE ---
   const [loginType, setLoginType] = useState('farmer'); // 'farmer' | 'admin'
 
-  // Updated state to use a generic 'username' key since it handles both phone numbers and admin names
   const [formData, setFormData] = useState({
-    username: '',
+    username: '+254',
     password: ''
   });
 
@@ -54,8 +54,12 @@ export default function Login() {
       });
 
       if (profileResponse.ok) {
+        // It's a verified farmer
+        localStorage.setItem('user_role', 'farmer');
         navigate('/my-farm');
       } else {
+        // The farmer endpoint rejected them, so they must be an Admin
+        localStorage.setItem('user_role', 'admin');
         navigate('/dashboard');
       }
       
@@ -66,56 +70,58 @@ export default function Login() {
     }
   };
 
-  // Helper function to switch tabs and clear out the input field
   const handleTabSwitch = (type) => {
     setLoginType(type);
     setFormData({ ...formData, username: '' });
     setError('');
+    setShowSuccess(false); // Clear success message if they switch tabs
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-[#F8FAF9] dark:bg-gray-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300 relative overflow-hidden">
       
-      {/* Brand Header */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      {/* Background abstract shape */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-end mb-4 px-4">
           <ThemeToggle />
         </div>
-        <Link to="/" className="flex justify-center items-center gap-2 mb-6 hover:opacity-80 transition-opacity">
-          <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">AgriNet<span className="text-green-600">.</span></span>
-        </Link>
-        <h2 className="mt-2 text-center text-2xl font-extrabold text-gray-900 dark:text-white">Account Access</h2>
-        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Not in the Taita Taveta cooperative yet?{' '}
-          <Link to="/register" className="font-medium text-green-600 hover:text-green-500 transition-colors">
-            Register your farm
+        
+        <div className="flex justify-center mb-6">
+          <Link to="/" className="w-14 h-14 rounded-xl bg-[#104330] flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+            <Sprout className="w-8 h-8 text-green-400" />
           </Link>
+        </div>
+        <h2 className="text-center text-3xl font-black text-[#0B2C20] dark:text-white tracking-tight">
+          Portal Access
+        </h2>
+        <p className="mt-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">
+          County Government of Taita-Taveta
         </p>
       </div>
 
-      {/* Form Card Container */}
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-gray-900 pt-6 pb-8 px-4 shadow-xl shadow-gray-200/50 dark:shadow-none sm:rounded-2xl sm:px-10 border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-white dark:bg-gray-900 py-8 px-4 shadow-xl border border-gray-200 dark:border-gray-800 sm:rounded-2xl sm:px-10 transition-colors duration-300">
           
-          {/* --- NEW: TAB SWITCHER --- */}
-          <div className="flex p-1 mb-8 bg-gray-100 dark:bg-gray-800 rounded-xl">
+          {/* --- TAB SWITCHER --- */}
+          <div className="flex p-1.5 mb-8 bg-[#F8FAF9] dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
             <button
               onClick={() => handleTabSwitch('farmer')}
-              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${
+              className={`flex-1 py-2.5 text-xs uppercase tracking-widest font-bold rounded-lg transition-all duration-200 ${
                 loginType === 'farmer' 
-                  ? 'bg-white dark:bg-gray-900 text-green-600 dark:text-green-500 shadow-sm' 
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  ? 'bg-white dark:bg-gray-700 text-[#104330] dark:text-green-400 shadow-sm border border-gray-100 dark:border-gray-600' 
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-transparent'
               }`}
             >
-              Farmer Portal
+              Farmer
             </button>
             <button
               onClick={() => handleTabSwitch('admin')}
-              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${
+              className={`flex-1 py-2.5 text-xs uppercase tracking-widest font-bold rounded-lg transition-all duration-200 ${
                 loginType === 'admin' 
-                  ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-500 shadow-sm' 
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  ? 'bg-white dark:bg-gray-700 text-blue-700 dark:text-blue-400 shadow-sm border border-gray-100 dark:border-gray-600' 
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-transparent'
               }`}
             >
               System Admin
@@ -123,14 +129,16 @@ export default function Login() {
           </div>
 
           {showSuccess && (
-            <div className="mb-6 bg-green-50 dark:bg-green-900/30 border-l-4 border-green-500 p-4 rounded-md">
-              <p className="text-sm text-green-700 dark:text-green-300 font-medium">Registration successful! Please sign in below.</p>
+            <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 p-4 rounded-lg flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm font-bold text-green-800 dark:text-green-300">Registration successful! Please sign in below.</p>
             </div>
           )}
 
           {error && (
-            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 rounded-md">
-              <p className="text-sm text-red-700 dark:text-red-300 font-medium">{error}</p>
+            <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 p-4 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm font-bold text-red-700 dark:text-red-400">{error}</p>
             </div>
           )}
 
@@ -138,23 +146,22 @@ export default function Login() {
             
             {/* DYNAMIC IDENTIFIER FIELD */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {loginType === 'farmer' ? 'Registered Phone Number' : 'Admin Username'}
+              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                {loginType === 'farmer' ? 'Registered Phone Number' : 'Official Admin Email'}
               </label>
-              <div className="mt-1 relative">
-                {/* Optional visual cue based on role */}
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   {loginType === 'farmer' ? (
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    <Phone className="h-4 w-4 text-gray-400" />
                   ) : (
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <Shield className="h-4 w-4 text-gray-400" />
                   )}
                 </div>
                 <input 
                   required 
-                  type="text" 
-                  placeholder={loginType === 'farmer' ? '+254700000000' : 'admin_katute'}
-                  className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
+                  type={loginType === 'farmer' ? 'text' : 'email'}
+                  placeholder={loginType === 'farmer' ? '+254XXXXXXXXX' : 'admin@example.com'}
+                  className={`block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent text-sm transition-colors ${loginType === 'admin' ? 'focus:ring-blue-600' : 'focus:ring-[#104330]'}`}
                   value={formData.username} 
                   onChange={e => setFormData({...formData, username: e.target.value})} 
                 />
@@ -162,16 +169,18 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-              <div className="mt-1 relative">
+              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                Secure Password
+              </label>
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                  <Lock className="h-4 w-4 text-gray-400" />
                 </div>
                 <input 
                   required 
                   type="password" 
                   placeholder="••••••••"
-                  className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
+                  className={`block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent text-sm transition-colors ${loginType === 'admin' ? 'focus:ring-blue-600' : 'focus:ring-[#104330]'}`}
                   value={formData.password} 
                   onChange={e => setFormData({...formData, password: e.target.value})} 
                 />
@@ -180,11 +189,11 @@ export default function Login() {
 
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center">
-                <input id="remember-me" type="checkbox" className={`h-4 w-4 rounded focus:ring-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 ${loginType === 'admin' ? 'text-blue-600 focus:ring-blue-500' : 'text-green-600 focus:ring-green-500'}`} />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">Remember me</label>
+                <input id="remember-me" type="checkbox" className={`h-4 w-4 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-800 focus:ring-2 ${loginType === 'admin' ? 'text-blue-700 focus:ring-blue-600' : 'text-[#104330] focus:ring-[#104330]'}`} />
+                <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Remember me</label>
               </div>
               <div className="text-sm">
-                <a href="#" className={`font-medium transition-colors ${loginType === 'admin' ? 'text-blue-600 hover:text-blue-500' : 'text-green-600 hover:text-green-500'}`}>Forgot password?</a>
+                <a href="#" className={`font-bold transition-colors hover:underline ${loginType === 'admin' ? 'text-blue-700 dark:text-blue-400' : 'text-[#104330] dark:text-green-400'}`}>Forgot password?</a>
               </div>
             </div>
 
@@ -192,10 +201,10 @@ export default function Login() {
               <button 
                 type="submit" 
                 disabled={loading} 
-                className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 transition-all hover:shadow-lg ${
+                className={`w-full flex justify-center py-3.5 px-4 rounded-xl shadow-md text-sm font-bold text-white transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none ${
                   loginType === 'admin' 
-                    ? 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500' 
-                    : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                    ? 'bg-blue-800 hover:bg-blue-900' 
+                    : 'bg-[#0B2C20] hover:bg-[#104330]'
                 }`}
               >
                 {loading ? 'Authenticating...' : `Sign in as ${loginType === 'farmer' ? 'Farmer' : 'Admin'}`}
@@ -203,6 +212,22 @@ export default function Login() {
             </div>
           </form>
 
+          {loginType === 'farmer' && (
+            <div className="mt-8 border-t border-gray-100 dark:border-gray-800 pt-6 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Not registered yet?{' '}
+                <Link to="/register" className="font-bold text-[#104330] dark:text-green-400 hover:underline">
+                  Create an account
+                </Link>
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-8 text-center pb-8">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Back to Home
+          </Link>
         </div>
       </div>
     </div>

@@ -9,8 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-import os
-import dj_database_url
+
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -30,7 +29,7 @@ SECRET_KEY = 'django-insecure-a70v!g3+o(^vf6(*3w5jc-5sxjdu37x86%=3*2^a)e$tz1*h@3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
