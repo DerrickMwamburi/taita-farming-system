@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -27,6 +27,11 @@ SECRET_KEY = 'django-insecure-a70v!g3+o(^vf6(*3w5jc-5sxjdu37x86%=3*2^a)e$tz1*h@3
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY', '')
+
+# backend/settings.py
+AUTHENTICATION_BACKENDS = ['management.auth_backends.EmailOrUsernameModelBackend']
 
 
 # Application definition

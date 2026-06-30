@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { Sprout, Phone, Lock, User, MapPin, Maximize, ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ export default function Register() {
   const [formData, setFormData] = useState({
     full_name: '', phone_number: '+254', subcounty: 'MWATATE', acreage: '', password: '', confirm_password: '', crops: []
   });
+
+  const SUBCOUNTY_CHOICES = ['Voi', 'Mwatate', 'Wundanyi', 'Taveta'];
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/api/crops/')
@@ -57,121 +60,143 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-[#F8FAF9] dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 font-sans relative overflow-hidden">
       
-      <div className="sm:mx-auto sm:w-full sm:max-w-xl">
+      {/* Background abstract shape */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-3xl mx-auto relative z-10">
+        
         <div className="flex justify-end mb-4 px-4">
           <ThemeToggle />
         </div>
-        <Link to="/" className="flex justify-center items-center gap-2 mb-4 hover:opacity-80 transition-opacity">
-          <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">AgriNet<span className="text-green-600">.</span></span>
-        </Link>
-        <h2 className="text-center text-2xl font-extrabold text-gray-900 dark:text-white mb-2">Join the Taita-Taveta Network</h2>
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-green-600 dark:text-green-500 hover:text-green-500 transition-colors">
-            Sign in here
-          </Link>
-        </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
-        <div className="bg-white dark:bg-gray-900 py-8 px-4 shadow-xl shadow-gray-200/50 dark:shadow-none sm:rounded-2xl sm:px-10 border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+        <div className="text-center mb-10">
+          <Link to="/" className="inline-flex w-16 h-16 rounded-2xl bg-[#104330] items-center justify-center shadow-lg hover:scale-105 transition-transform mb-6">
+            <Sprout className="w-10 h-10 text-green-400" />
+          </Link>
+          <h2 className="text-3xl md:text-4xl font-black text-[#0B2C20] dark:text-white tracking-tight">
+            Register Your Farm
+          </h2>
+          <p className="mt-3 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+            Join the official Taita-Taveta agricultural network to access market analytics, log activities, and receive local advisories.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-900 py-8 px-6 md:px-10 shadow-xl border border-gray-200 dark:border-gray-800 rounded-3xl transition-colors duration-300">
           
           {error && (
-            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 rounded-md">
-              <p className="text-sm text-red-700 dark:text-red-400 font-medium">{error}</p>
+            <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-lg flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm font-bold text-red-700 dark:text-red-400">{error}</p>
             </div>
           )}
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-6">
-              
-              <div className="col-span-1 md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Legal Name</label>
-                <input required type="text" 
-                  className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors" 
-                  value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} 
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Column 1: Personal Details */}
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Full Legal Name</label>
+                  <div className="relative">
+                    <User className="absolute inset-y-0 left-0 pl-3 h-full w-8 text-gray-400 pointer-events-none" />
+                    <input required type="text" placeholder="Jane Doe" className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#104330] focus:border-transparent text-sm transition-colors" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number (E.164)</label>
-                <input required type="text" placeholder="+254700000000"
-                  className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors" 
-                  value={formData.phone_number} onChange={e => setFormData({...formData, phone_number: e.target.value})} 
-                />
-              </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Phone Number (E.164)</label>
+                  <div className="relative">
+                    <Phone className="absolute inset-y-0 left-0 pl-3 h-full w-8 text-gray-400 pointer-events-none" />
+                    <input required type="tel" placeholder="+254700000000" className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#104330] focus:border-transparent text-sm transition-colors" value={formData.phone_number} onChange={e => setFormData({...formData, phone_number: e.target.value})} />
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subcounty</label>
-                <select 
-                  className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors"
-                  value={formData.subcounty} onChange={e => setFormData({...formData, subcounty: e.target.value})}>
-                  <option value="MWATATE">Mwatate</option>
-                  <option value="VOI">Voi</option>
-                  <option value="WUNDANYI">Wundanyi</option>
-                  <option value="TAVETA">Taveta</option>
-                </select>
-              </div>
-
-              <div className="col-span-1 md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Farm Size (Acres)</label>
-                <input required type="number" step="0.1" min="0.1" placeholder="e.g. 2.5"
-                  className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors" 
-                  value={formData.acreage} onChange={e => setFormData({...formData, acreage: e.target.value})} 
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                <input required type="password" 
-                  className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors" 
-                  value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} 
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
-                <input required type="password" 
-                  className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-gray-900 dark:text-white transition-colors" 
-                  value={formData.confirm_password} onChange={e => setFormData({...formData, confirm_password: e.target.value})} 
-                />
-              </div>
-
-              {/* Crops Section */}
-              <div className="col-span-1 md:col-span-2 pt-2">
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3 border-t border-gray-200 dark:border-gray-700 pt-4">Select Active Crops</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border border-gray-100 dark:border-gray-800 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/50">
-                  {availableCrops.map(crop => (
-                    <label key={crop.id} className="relative flex items-center cursor-pointer group">
-                      <div className="flex items-center h-5">
-                        <input type="checkbox" 
-                          className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded transition-colors"
-                          checked={formData.crops.includes(crop.id)}
-                          onChange={() => handleCheckboxChange(crop.id)}
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <span className="font-medium text-gray-700 dark:text-gray-300 capitalize group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">
-                          {crop.name.replace('_', ' ')}
-                        </span>
-                      </div>
-                    </label>
-                  ))}
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Create Password</label>
+                  <div className="relative">
+                    <Lock className="absolute inset-y-0 left-0 pl-3 h-full w-8 text-gray-400 pointer-events-none" />
+                    <input required type="password" placeholder="••••••••" className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#104330] focus:border-transparent text-sm transition-colors" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                  </div>
                 </div>
               </div>
 
+              {/* Column 2: Farm Details */}
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Location (Subcounty)</label>
+                  <div className="relative">
+                    <MapPin className="absolute inset-y-0 left-0 pl-3 h-full w-8 text-gray-400 pointer-events-none" />
+                    <select required className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#104330] focus:border-transparent text-sm transition-colors" value={formData.subcounty} onChange={e => setFormData({...formData, subcounty: e.target.value.toUpperCase()})}>
+                      <option value="">Select Subcounty...</option>
+                      {SUBCOUNTY_CHOICES.map(loc => <option key={loc} value={loc.toUpperCase()}>{loc}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Farm Size</label>
+                  <div className="relative flex items-center">
+                    <Maximize className="absolute inset-y-0 left-0 pl-3 h-full w-8 text-gray-400 pointer-events-none z-10" />
+                    <input required type="number" step="0.1" min="0.1" placeholder="e.g. 2.5" className="block w-full pl-10 pr-16 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#104330] focus:border-transparent text-sm transition-colors" value={formData.acreage} onChange={e => setFormData({...formData, acreage: e.target.value})} />
+                    <span className="absolute right-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none">Acres</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Confirm Password</label>
+                  <div className="relative">
+                    <Lock className="absolute inset-y-0 left-0 pl-3 h-full w-8 text-gray-400 pointer-events-none" />
+                    <input required type="password" placeholder="••••••••" className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#104330] focus:border-transparent text-sm transition-colors" value={formData.confirm_password} onChange={e => setFormData({...formData, confirm_password: e.target.value})} />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="pt-4">
-              <button type="submit" disabled={loading} 
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 transition-all hover:shadow-lg">
-                {loading ? 'Registering Farm...' : 'Complete Secure Registration'}
-              </button>
+            {/* Full Width: Crop Selection */}
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
+              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Active Crop Catalog (Select all that apply)</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-[#F8FAF9] dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                {availableCrops.length === 0 ? (
+                  <p className="col-span-full text-xs text-gray-500 italic">Loading catalog...</p>
+                ) : (
+                  availableCrops.map(crop => (
+                    <label key={crop.id} className="flex items-center gap-3 cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 text-[#104330] rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-[#104330] transition-colors cursor-pointer"
+                        checked={formData.crops.includes(crop.id)} 
+                        onChange={() => handleCheckboxChange(crop.id)} 
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                        {crop.name.replace('_', ' ')}
+                      </span>
+                    </label>
+                  ))
+                )}
+              </div>
             </div>
+
+            <button type="submit" disabled={loading} className="w-full flex justify-center items-center py-4 px-4 rounded-xl shadow-md text-sm font-black text-white bg-[#0B2C20] hover:bg-[#104330] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#104330] transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none">
+              {loading ? 'Creating Secure Account...' : 'Register & Access Portal'}
+            </button>
           </form>
+          
+          <div className="mt-8 border-t border-gray-100 dark:border-gray-800 pt-6 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?{' '}
+              <Link to="/login" className="font-bold text-[#104330] dark:text-green-400 hover:underline">
+                Sign in to your portal
+              </Link>
+            </p>
+          </div>
+        </div>
 
+        <div className="mt-8 text-center pb-12">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Cancel & Return to Home
+          </Link>
         </div>
       </div>
     </div>

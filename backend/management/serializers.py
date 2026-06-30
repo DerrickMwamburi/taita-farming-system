@@ -1,6 +1,7 @@
 # backend/management/serializers.py
 from rest_framework import serializers
-from .models import Farmer, Crop, SystemAlert
+from .models import Farmer, Crop, SystemAlert, SupportTicket, BackupLog
+from django.contrib.auth.models import User
 
 class CropSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,3 +62,37 @@ class SystemAlertSerializer(serializers.ModelSerializer):
     class Meta:
         model = SystemAlert
         fields = '__all__'
+
+class SupportTicketSerializer(serializers.ModelSerializer):
+    # This will allow the frontend to display the farmer's name easily
+    farmer_name = serializers.CharField(source='farmer.full_name', read_only=True)
+    location = serializers.CharField(source='farmer.subcounty', read_only=True)
+
+    class Meta:
+        model = SupportTicket
+        fields = ['id', 'farmer', 'farmer_name', 'location', 'issue_description', 'status', 'created_at', 'updated_at']
+        read_only_fields = ['farmer'] # Prevent manual manipulation of the farmer ID
+
+class BackupLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BackupLog
+        fields = '__all__'
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    # Make password write-only so it never gets sent back to the frontend
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password', 'is_superuser', 'is_staff', 'date_joined', 'is_active']
+
+    def create(self, validated_data):
+        # Securely create the user and hash the password
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password'],
+            is_staff=True, # Force staff status so they can access the dashboard
+            is_superuser=validated_data.get('is_superuser', False)
+        )
+        return user

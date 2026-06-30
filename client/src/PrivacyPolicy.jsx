@@ -1,47 +1,98 @@
 import { Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { Sprout, ArrowRight, ShieldCheck } from 'lucide-react';
 
-export default function PrivacyPolicy() {
+export default function Privacy() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans transition-colors duration-300 text-gray-800 dark:text-gray-300">
-      <nav className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-        <Link to="/" className="text-green-600 dark:text-green-500 font-bold flex items-center gap-2 hover:opacity-80">
-          ← Back to Home
-        </Link>
-        <ThemeToggle />
+    <div className="min-h-screen bg-[#F8FAF9] dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300">
+      
+      {/* ENTERPRISE NAVIGATION BAR */}
+      <nav className="sticky top-0 w-full border-b border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl z-50 transition-all shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-20 items-center">
+            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 rounded bg-[#104330] flex items-center justify-center shadow-md">
+                <Sprout className="w-6 h-6 text-green-400" />
+              </div>
+              <div>
+                <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">AgriNet<span className="text-green-600">.</span></span>
+              </div>
+            </Link>
+            <div className="flex gap-5 items-center">
+              <ThemeToggle />
+              <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-[#104330] font-bold px-2 py-2 text-sm transition-colors hidden sm:block">
+                Portal Login
+              </Link>
+              <Link to="/register" className="bg-[#0B2C20] hover:bg-[#104330] text-white px-6 py-2.5 rounded-lg font-bold transition-all text-sm shadow-md flex items-center gap-2">
+                Register <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </nav>
 
-      <main className="max-w-3xl mx-auto py-12 px-6">
-        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-8">Privacy Policy</h1>
-        <p className="mb-6 text-sm text-gray-500">Last Updated: {new Date().toLocaleDateString()}</p>
-        
-        <div className="space-y-8 leading-relaxed">
+      {/* PAGE CONTENT */}
+      <main className="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <div className="mb-10 border-b border-gray-200 dark:border-gray-800 pb-8 text-center">
+          <ShieldCheck className="w-12 h-12 text-[#104330] dark:text-green-400 mx-auto mb-4" />
+          <h1 className="text-4xl font-black text-[#0B2C20] dark:text-white tracking-tight mb-2">Privacy Policy</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-medium uppercase tracking-widest text-xs">Last Updated: June 2026</p>
+        </div>
+
+        <div className="space-y-8 text-gray-700 dark:text-gray-300 leading-relaxed text-sm md:text-base">
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">1. Data Collection</h2>
-            <p>AgriNet collects personal and agricultural data essential for providing localized farming insights in Taita-Taveta County. This includes your registered phone number, subcounty location, acreage, specific crop choices, and self-reported financial logging.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">1. Information We Collect</h2>
+            <p>
+              When you register for an AgriNet account, we collect personal and agricultural data necessary to provide our services. This includes your Full Legal Name, Phone Number (for system access and SMS alerts), Subcounty location, total Cultivated Acreage, and selected Crop Catalog data.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">2. Use of Information</h2>
-            <p>Your data is strictly used to:</p>
-            <ul className="list-disc pl-6 mt-3 space-y-2 text-gray-700 dark:text-gray-400">
-              <li>Deliver targeted KALRO and weather advisories to your portal.</li>
-              <li>Calculate projected seasonal revenue based on live regional market prices.</li>
-              <li>Provide aggregated, anonymized analytics to county administrators to improve local agricultural policies.</li>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">2. How We Use Your Data</h2>
+            <p>
+              Your data is utilized exclusively by the County Government of Taita-Taveta to:
+            </p>
+            <ul className="list-disc pl-5 mt-3 space-y-2">
+              <li>Authenticate your secure access to the Farmer Portal.</li>
+              <li>Provide personalized market revenue forecasts based on your acreage.</li>
+              <li>Aggregate high-level, anonymized county statistics for the Admin Command Center.</li>
+              <li>Send critical network broadcasts (e.g., KALRO weather advisories).</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">3. Data Protection</h2>
-            <p>We implement robust security measures, including JSON Web Token (JWT) authentication, to protect your farm's financial and personal data. We comply strictly with the Data Protection Act of Kenya. AgriNet will never sell your individual farm data to third-party marketing agencies.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">3. Data Security & Storage</h2>
+            <p>
+              We implement industry-standard JWT (JSON Web Tokens) and encrypted database storage to protect your personal information. Only authorized agricultural officers have access to the aggregated regional datastores. We do not sell your personal data to third-party commercial entities.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">4. Your Rights</h2>
-            <p>You reserve the right to access, modify, or permanently delete your farm's profile from the AgriNet database at any time by contacting our support team or using the Admin portal.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">4. Contact Us</h2>
+            <p>
+              If you have any questions about this Privacy Policy, you can reach out to our administration office via the Support page or visit our headquarters in Mwatate.
+            </p>
           </section>
         </div>
       </main>
+
+      {/* ENTERPRISE FOOTER */}
+      <footer className="bg-[#0B2C20] text-gray-400 py-12 border-t border-[#104330] mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-white/10 flex items-center justify-center">
+              <Sprout className="w-5 h-5 text-green-400" />
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">AgriNet<span className="text-green-500">.</span></span>
+          </div>
+          <p className="text-xs font-medium text-gray-400">© {new Date().getFullYear()} County Government of Taita-Taveta.</p>
+          <div className="flex gap-6 text-xs font-bold uppercase tracking-wider">
+            <Link to="/privacy" className="text-white transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <Link to="/support" className="hover:text-white transition-colors">Support</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

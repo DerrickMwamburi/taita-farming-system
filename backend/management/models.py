@@ -36,7 +36,6 @@ class Farmer(models.Model):
     def __str__(self):
         return f"{self.full_name} - {self.get_subcounty_display()}"
 
-# In backend/management/models.py
 
 class FarmActivity(models.Model):
     # Change FarmerProfile to 'Farmer' (or whatever your exact class name is at the top of the file)
@@ -69,3 +68,49 @@ class SystemAlert(models.Model):
 
     def __str__(self):
         return f"{self.get_category_display()}: {self.title}"
+
+# ==========================================
+# --- NEW: SUPPORT DESK & DATA VAULT ---
+# ==========================================
+
+class SupportTicket(models.Model):
+    STATUS_CHOICES = [
+        ('Open', 'Open'),
+        ('In Progress', 'In Progress'),
+        ('Resolved', 'Resolved'),
+    ]
+    
+    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='support_tickets')
+    issue_description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Open')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Ticket #{self.id} - {self.farmer.full_name} ({self.status})"
+
+class BackupLog(models.Model):
+    TYPE_CHOICES = [
+        ('Automated', 'Automated'),
+        ('Manual', 'Manual'),
+    ]
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Verified', 'Verified'),
+        ('Failed', 'Failed'),
+    ]
+
+    file_name = models.CharField(max_length=255, help_text="Name of the generated .sql or .dump file")
+    file_size = models.CharField(max_length=50, default="0 MB") 
+    backup_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='Manual')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Verified')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Backup: {self.file_name} [{self.status}]"
