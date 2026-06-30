@@ -2,7 +2,7 @@ import os
 import sys
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings') # Ensure this matches your project folder name
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings') # Ensure this matches your project folder name
 
 application = get_wsgi_application()
 
@@ -16,7 +16,7 @@ if 'render' in os.environ.get('RENDER_EXTERNAL_URL', ''):
         
         # Automatically create your admin user if it's not there
         os.environ.setdefault('DJANGO_SUPERUSER_PASSWORD', 'Taita2026!') # Fallback password if env var is missing
-        call_command('createsuperuser', '--noinput', '--username', 'admin_katute', '--email', 'admin@example.com', verbosity=0)
+        call_command('createsuperuser', '--noinput', '--username', 'katute', '--email', 'katute80@gmail.com', verbosity=0)
         print("Runtime database setup complete!")
     except Exception as e:
         print(f"Runtime migration notice: {e}", file=sys.stderr)
