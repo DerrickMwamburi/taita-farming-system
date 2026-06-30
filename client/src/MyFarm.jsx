@@ -30,7 +30,7 @@ export default function MyFarm() {
     fetchMyProfile();
     fetchActivities();
     fetchAlerts(); // Trigger the new fetch
-    fetch('http://127.0.0.1:8000/api/crops/')
+    fetch('`${import.meta.env.VITE_API_BASE_URL}/api/crops/')
       .then(res => res.json())
       .then(data => setAvailableCrops(data))
       .catch(() => console.error('Could not load crops.'));
@@ -40,7 +40,7 @@ export default function MyFarm() {
     const token = localStorage.getItem('access_token');
     if (!token) return navigate('/login');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/farmers/me/', {
+      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/farmers/me/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('Failed to load profile');
@@ -57,7 +57,7 @@ export default function MyFarm() {
   const fetchAlerts = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/alerts/', {
+      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/alerts/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -80,7 +80,7 @@ export default function MyFarm() {
     setIsSaving(true);
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/farmers/me/', {
+      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/farmers/me/', {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ acreage: editForm.acreage, crops: editForm.crops })
@@ -100,7 +100,7 @@ export default function MyFarm() {
   const fetchActivities = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/activities/', {
+      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/activities/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -115,7 +115,7 @@ export default function MyFarm() {
     if (!newTask.trim()) return;
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/activities/', {
+      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/activities/', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ task: newTask, cost: Number(newCost) || 0 })
@@ -133,7 +133,7 @@ export default function MyFarm() {
     const token = localStorage.getItem('access_token');
     setActivities(activities.map(a => a.id === id ? { ...a, completed: !currentStatus } : a));
     try {
-      await fetch(`http://127.0.0.1:8000/api/activities/${id}/`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/activities/${id}/`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ completed: !currentStatus })
@@ -150,7 +150,7 @@ export default function MyFarm() {
   const saveEdit = async (id) => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/activities/${id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/activities/${id}/`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ task: editTaskText, cost: Number(editTaskCost) })
@@ -167,7 +167,7 @@ export default function MyFarm() {
     if (!window.confirm("Delete this task?")) return;
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/activities/${id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/activities/${id}/`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

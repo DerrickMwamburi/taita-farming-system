@@ -17,7 +17,7 @@ export default function Landing() {
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/market-prices/', {
+        const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/market-prices/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

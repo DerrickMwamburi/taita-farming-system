@@ -31,7 +31,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/token/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/token/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -49,7 +49,7 @@ export default function Login() {
       localStorage.setItem('refresh_token', data.refresh);
 
       // Route based on access level
-      const profileResponse = await fetch('http://127.0.0.1:8000/api/farmers/me/', {
+      const profileResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/farmers/me/`, {
         headers: { 'Authorization': `Bearer ${data.access}` }
       });
 

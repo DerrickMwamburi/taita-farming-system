@@ -69,9 +69,9 @@ export default function Dashboard() {
 
     try {
       const [farmersRes, cropsRes, alertsRes] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/farmers/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:8000/api/crops/'),
-        fetch('http://127.0.0.1:8000/api/alerts/')
+        fetch('`${import.meta.env.VITE_API_BASE_URL}/api/farmers/', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('`${import.meta.env.VITE_API_BASE_URL}/api/crops/'),
+        fetch('`${import.meta.env.VITE_API_BASE_URL}/api/alerts/')
       ]);
 
       if (!farmersRes.ok || !cropsRes.ok) throw new Error('Failed to load database.');
@@ -99,7 +99,7 @@ export default function Dashboard() {
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/alerts/', {
+      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/alerts/', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(alertData)
@@ -119,7 +119,7 @@ export default function Dashboard() {
   const handleRevokeAlert = async (id) => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/alerts/${id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/alerts/${id}/`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -143,7 +143,7 @@ export default function Dashboard() {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/crops/', {
+      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/crops/', {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -234,7 +234,7 @@ export default function Dashboard() {
   const handleSaveEdit = async (id) => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/farmers/${id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/farmers/${id}/`, {
         method: 'PATCH',
         headers: { 
           'Authorization': `Bearer ${token}`,
