@@ -13,7 +13,7 @@ export default function Register() {
   });
 
   useEffect(() => {
-    fetch('`${import.meta.env.VITE_API_BASE_URL}/api/crops/')
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crops/`)
       .then(res => res.json())
       .then(data => setAvailableCrops(data))
       .catch(() => setError('Could not load crops from the server.'));
@@ -37,7 +37,7 @@ export default function Register() {
       const submitData = { ...formData };
       delete submitData.confirm_password;
 
-      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/farmers/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/farmers/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submitData)

@@ -69,9 +69,9 @@ export default function Dashboard() {
 
     try {
       const [farmersRes, cropsRes, alertsRes] = await Promise.all([
-        fetch('`${import.meta.env.VITE_API_BASE_URL}/api/farmers/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('`${import.meta.env.VITE_API_BASE_URL}/api/crops/'),
-        fetch('`${import.meta.env.VITE_API_BASE_URL}/api/alerts/')
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/farmers/`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crops/`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/alerts/`)
       ]);
 
       if (!farmersRes.ok || !cropsRes.ok) throw new Error('Failed to load database.');
@@ -99,7 +99,7 @@ export default function Dashboard() {
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/alerts/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/alerts/`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(alertData)
@@ -143,7 +143,7 @@ export default function Dashboard() {
     };
 
     try {
-      const response = await fetch('`${import.meta.env.VITE_API_BASE_URL}/api/crops/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crops/`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
