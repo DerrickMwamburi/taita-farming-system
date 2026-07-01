@@ -159,7 +159,7 @@ export default function Login() {
                 </div>
                 <input 
                   required 
-                  type={loginType === 'farmer' ? 'text' : 'email'}
+                  type={loginType === 'farmer' ? 'text' : 'text'}
                   placeholder={loginType === 'farmer' ? '+254XXXXXXXXX' : 'admin@example.com'}
                   className={`block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent text-sm transition-colors ${loginType === 'admin' ? 'focus:ring-blue-600' : 'focus:ring-[#104330]'}`}
                   value={formData.username} 
