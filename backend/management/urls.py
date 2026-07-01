@@ -11,7 +11,8 @@ from .views import (
     BackupLogViewSet,
     BroadcastSMSView,
     LocalWeatherView,
-    AdminUserViewSet
+    AdminUserViewSet,
+    verify_otp
 )
 from . import views
 
@@ -33,4 +34,5 @@ urlpatterns = [
     path('activities/<int:pk>/', views.farm_activity_detail, name='farm_activity_detail'),
     path('broadcast-sms/', BroadcastSMSView.as_view(), name='broadcast_sms'),
     path('weather/local/', LocalWeatherView.as_view(), name='local_weather'),
+    path('api/verify-otp/', verify_otp, name='verify_otp'),
 ]

@@ -32,6 +32,7 @@ class Farmer(models.Model):
     crops = models.ManyToManyField(Crop, related_name='farmers')
     onboarded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    otp_code = models.CharField(max_length=6, blank=True, null=True)
 
     def __str__(self):
         return f"{self.full_name} - {self.get_subcounty_display()}"

@@ -35,10 +35,14 @@ class FarmerViewSet(viewsets.ModelViewSet):
         phone_number = serializer.validated_data.get('phone_number')
         
         # 2. Create the secure Django auth account using the phone number as the username
-        user_account = User.objects.create_user(username=phone_number, password=password)
+        user_account = User.objects.create_user(username=phone_number, password=password, is_active=False)
         
+        # Generate a random 6-digit code
+        otp = str(random.randint(100000, 999999))
         # 3. Save the Farmer to the database, explicitly linking the new user account
-        farmer = serializer.save(user=user_account)
+        farmer = serializer.save(user=user_account, otp_code=otp)
+
+        send_otp_sms(phone_number=phone_number, otp_code=otp)  # Send OTP via SMS
         
         # 4. Trigger existing SMS code
         farmer_name = farmer.full_name
@@ -398,3 +402,30 @@ class AdminUserViewSet(viewsets.ModelViewSet): # <-- Change this line
         """Returns the profile of the currently logged-in admin"""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+
+    # ... (End of FarmerViewSet or whatever class is above it)
+
+# THIS MUST BE FLUSH AGAINST THE LEFT MARGIN (0 SPACES)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_otp(request):
+    """Checks the OTP and unlocks the farmer's account."""
+    phone_number = request.data.get('phone_number')
+    provided_otp = request.data.get('otp_code')
+
+    try:
+        farmer = Farmer.objects.get(phone_number=phone_number)
+        
+        if farmer.otp_code == provided_otp:
+            farmer.user.is_active = True
+            farmer.user.save()
+            
+            farmer.otp_code = None
+            farmer.save()
+            
+            return Response({"success": "Account verified and activated!"}, status=200)
+        else:
+            return Response({"error": "Invalid verification code."}, status=400)
+            
+    except Farmer.DoesNotExist:
+        return Response({"error": "Account not found."}, status=404)
