@@ -41,6 +41,8 @@ export default function MyFarm() {
     fetchMyProfile();
     fetchActivities();
     fetchAlerts(); // Trigger the new fetch
+    fetchWeather(); // Trigger the new fetch
+    fetchTickets(); // Trigger the new fetch
     fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crops/`)
       .then(res => res.json())
       .then(data => setAvailableCrops(data))
