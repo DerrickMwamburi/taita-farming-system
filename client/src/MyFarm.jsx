@@ -537,7 +537,7 @@ export default function MyFarm() {
                   <>
                     <div className="flex items-center gap-4">
                       {weather.icon ? (
-                        <img src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`} alt="weather icon" className="w-12 h-12 drop-shadow-sm" />
+                        <img src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`} alt="weather icon" className="w-12 h-12 drop-shadow-sm" />
                       ) : (
                         <CloudSun className="w-10 h-10 text-amber-500" />
                       )}
