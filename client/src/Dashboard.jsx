@@ -84,7 +84,7 @@ export default function Dashboard() {
   }, [navigate]);
 
   const fetchDatabase = async () => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
     if (!token) return navigate('/login');
 
     try {
@@ -119,7 +119,7 @@ export default function Dashboard() {
   const handleInviteAdmin = async (e) => {
     e.preventDefault();
     setIsInviting(true);
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admins/`, {
@@ -146,7 +146,7 @@ export default function Dashboard() {
 
   const handleBroadcastAlert = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/alerts/`, {
@@ -167,7 +167,7 @@ export default function Dashboard() {
   };
 
   const handleRevokeAlert = async (id) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/alerts/${id}/`, {
         method: 'DELETE',
@@ -182,7 +182,7 @@ export default function Dashboard() {
 
   const handleCreateCrop = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
 
     const formattedData = {
       name: newCropData.name.toUpperCase().replace(/\s+/g, '_'),
@@ -264,7 +264,7 @@ export default function Dashboard() {
   };
 
   const handleSaveEdit = async (id) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/farmers/${id}/`, {
         method: 'PATCH',
@@ -286,9 +286,9 @@ export default function Dashboard() {
 
   const confirmDelete = async () => {
     if (!farmerToDelete) return;
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/farmers/${farmerToDelete.id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/farmers/${farmerToDelete.id}/`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -338,7 +338,7 @@ export default function Dashboard() {
 
   const triggerManualBackup = async () => {
     setIsBackingUp(true);
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/backups/`, {
         method: 'POST',
@@ -364,7 +364,7 @@ export default function Dashboard() {
   const handleSendSMS = async (e) => {
     e.preventDefault();
     setIsSendingSMS(true);
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
     
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/broadcast-sms/`, {
@@ -392,9 +392,9 @@ export default function Dashboard() {
   };
 
   const updateTicketStatus = async (id, newStatus) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('admin_access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/tickets/${id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tickets/${id}/`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
