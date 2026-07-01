@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-a70v!g3+o(^vf6(*3w5jc-5sxjdu37x86%=3*2^a)e$tz1*h@3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -141,7 +141,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "https://taita-farming-system.vercel.app",
-    "https://taita-farming-system.onrender.com" # <--- ADD THIS LINE
+     # <--- ADD THIS LINE
 ]
 
 # It is also highly recommended to add it to CSRF trusted origins for secure POST requests
