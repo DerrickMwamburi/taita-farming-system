@@ -132,6 +132,22 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Change this line to use the forgiving storage method:
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+# backend/core/settings.py
+
+# Add your Vercel URL to the allowed origins
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://taita-farming-system.vercel.app", # <--- ADD THIS LINE
+]
+
+# It is also highly recommended to add it to CSRF trusted origins for secure POST requests
+CSRF_TRUSTED_ORIGINS = [
+    "https://taita-farming-system.vercel.app", # <--- ADD THIS LINE
+]
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
