@@ -122,7 +122,7 @@ export default function Dashboard() {
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch(' http://127.0.0.1:8000/api/admins/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admins/`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(newAdminData)
