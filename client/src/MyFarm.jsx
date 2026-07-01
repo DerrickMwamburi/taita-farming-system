@@ -41,7 +41,7 @@ export default function MyFarm() {
     fetchMyProfile();
     fetchActivities();
     fetchAlerts(); // Trigger the new fetch
-    fetch('http://127.0.0.1:8000/api/crops/')
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crops/`)
       .then(res => res.json())
       .then(data => setAvailableCrops(data))
       .catch(() => console.error('Could not load crops.'));
@@ -82,7 +82,7 @@ export default function MyFarm() {
   const fetchWeather = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/weather/local/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/weather/local/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -97,7 +97,7 @@ export default function MyFarm() {
   const fetchTickets = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/tickets/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tickets/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -114,7 +114,7 @@ export default function MyFarm() {
     setIsSubmittingTicket(true);
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/tickets/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tickets/`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ issue_description: newTicket })

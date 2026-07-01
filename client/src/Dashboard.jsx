@@ -340,7 +340,7 @@ export default function Dashboard() {
     setIsBackingUp(true);
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/backups/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/backups/`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -367,7 +367,7 @@ export default function Dashboard() {
     const token = localStorage.getItem('access_token');
     
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/broadcast-sms/', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/broadcast-sms/`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`, 
