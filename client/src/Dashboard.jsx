@@ -288,7 +288,7 @@ export default function Dashboard() {
     if (!farmerToDelete) return;
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/farmers/${farmerToDelete.id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/farmers/${farmerToDelete.id}/`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -394,7 +394,7 @@ export default function Dashboard() {
   const updateTicketStatus = async (id, newStatus) => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/tickets/${id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tickets/${id}/`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
