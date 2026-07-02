@@ -289,7 +289,7 @@ export default function Landing() {
               {[
                 { title: 'Register Securely', desc: 'Add your farm and crop details into the official encrypted county database.', img: 'https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=800&auto=format&fit=crop', icon: <ShieldCheck className="w-6 h-6" /> },
                 { title: 'Track & Forecast', desc: 'Monitor your acreage, project revenue, and log seasonal expenses seamlessly.', img: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=800&auto=format&fit=crop', icon: <Globe className="w-6 h-6" /> },
-                { title: 'Grow Yields', desc: 'Access real-time market data, weather APIs, and expert KALRO advisory.', img: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad839?q=80&w=800&auto=format&fit=crop', icon: <Leaf className="w-6 h-6" /> }
+                { title: 'Grow Yields', desc: 'Access real-time market data, weather APIs, and expert KALRO advisory.', img: 'https://www.cropscience.bayer.co.za/_next/image?url=https%3A%2F%2Fcs-assets.bayer.com%2Fis%2Fimage%2Fbayer%2FHero%20Banner%20%E2%80%93%20Desktop%20%E2%80%93%20Article%20-%20Fieldview%20-%20Yield%20Analysis%3Awide%3Fdpr%3Don%252C4%26fmt%3Dwebp&w=3840&q=80', icon: <Leaf className="w-6 h-6" /> }
               ].map((item, i) => (
                 <div key={i} className="group relative h-96 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-200 dark:border-gray-800 transform hover:-translate-y-2">
                   <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
