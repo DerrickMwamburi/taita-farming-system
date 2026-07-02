@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # 1. Sandbox Credentials Configuration
 # In Africa's Talking, the username for testing is ALWAYS exactly "sandbox"
-SMS_USERNAME = os.environ.get('SMS_USERNAME', 'katuts')
+SMS_USERNAME = os.environ.get('SMS_USERNAME', 'sandbox')
 SMS_API_KEY = os.environ.get('SMS_API_KEY', 'atsk_40adaf3f6234a668e254618a8d93e6622f1943557644e0deaec5e7b1deca61e2d3c6b03b')
 
 def send_registration_sms(farmer_name, phone_number, acreage, subcounty):

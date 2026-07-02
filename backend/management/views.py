@@ -39,22 +39,12 @@ class FarmerViewSet(viewsets.ModelViewSet):
         
         # Generate a random 6-digit code
         otp = str(random.randint(100000, 999999))
+        
         # 3. Save the Farmer to the database, explicitly linking the new user account
         farmer = serializer.save(user=user_account, otp_code=otp)
 
-        send_otp_sms(phone_number=phone_number, otp_code=otp)  # Send OTP via SMS
-        
-        # 4. Trigger existing SMS code
-        farmer_name = farmer.full_name
-        acreage = farmer.acreage
-        subcounty = farmer.subcounty
-
-        send_registration_sms(
-            farmer_name=farmer_name,
-            phone_number=phone_number,
-            acreage=acreage,
-            subcounty=subcounty
-        )
+        # 4. ONLY trigger the OTP SMS here. (Welcome SMS moved to verify_otp)
+        send_otp_sms(phone_number=phone_number, otp_code=otp) 
 
     @action(detail=False, methods=['get', 'patch', 'put'], permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -200,7 +190,7 @@ def farm_activity_detail(request, pk):
         
     elif request.method == 'DELETE':
         activity.delete()
-        return Response(status=204)      
+        return Response(status=204)       
 
 class SystemAlertViewSet(viewsets.ModelViewSet):
     queryset = SystemAlert.objects.all()
@@ -387,7 +377,7 @@ class LocalWeatherView(APIView):
         except Exception as e:
             return Response({"error": f"Weather Service Offline: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class AdminUserViewSet(viewsets.ModelViewSet): # <-- Change this line
+class AdminUserViewSet(viewsets.ModelViewSet):
     """
     Provides a list and creation endpoint for staff and superusers.
     """
@@ -403,8 +393,6 @@ class AdminUserViewSet(viewsets.ModelViewSet): # <-- Change this line
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    # ... (End of FarmerViewSet or whatever class is above it)
-
 # THIS MUST BE FLUSH AGAINST THE LEFT MARGIN (0 SPACES)
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -419,6 +407,14 @@ def verify_otp(request):
         if farmer.otp_code == provided_otp:
             farmer.user.is_active = True
             farmer.user.save()
+            
+            # NOW we send the official welcome SMS since they verified!
+            send_registration_sms(
+                farmer_name=farmer.full_name,
+                phone_number=farmer.phone_number,
+                acreage=farmer.acreage,
+                subcounty=farmer.subcounty
+            )
             
             farmer.otp_code = None
             farmer.save()
