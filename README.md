@@ -1,72 +1,136 @@
-# Taita Farming System (AgriNet)
+🌱 Taita-Taveta AgriNet System
+An enterprise-grade Agritech platform designed to empower farmers in Taita Taveta County. The AgriNet system bridges the gap between agricultural operations and digital analytics by providing farmers with live climate data, expense tracking, projected revenue forecasting, and direct agronomic support, while giving administrators powerful broadcast and ticketing tools.
 
-AgriNet is a centralized agricultural management platform tailored for Taita-Taveta County. It bridges the gap between local farmers and county-wide agricultural data, enabling smarter farming decisions through real-time market insights and personalized farm management.
+🚀 Live Environments
+Frontend Application: https://taita-farming-system.vercel.app/
 
-## 📁 Project Architecture
-The project follows a clean separation between the Django-based API backend and the React-based frontend.
+Backend API: https://taita-farming-system.onrender.com
 
-```text
-TAITA_FARMING_SYSTEM/
-├── backend/
-│   ├── core/                # Django project configuration
-│   │   ├── __init__.py, asgi.py, settings.py, urls.py, wsgi.py
-│   ├── management/          # Core business logic & models
-│   │   ├── migrations/      # Database schema history
-│   │   ├── admin.py, apps.py, models.py, serializers.py, sms.py, views.py
-│   ├── venv/                # Virtual environment
-│   ├── manage.py            # Django entry point
-│   └── requirements.txt     # Dependency list
-├── client/                  # React/Vite Frontend
-│   ├── node_modules/        # Project dependencies
-│   ├── public/              # Static assets
-│   ├── src/                 # Source code
-│   │   ├── assets/
-│   │   ├── App.jsx          # Router & Layout logic
-│   │   ├── Dashboard.jsx    # Admin command center
-│   │   ├── Landing.jsx      # Public homepage
-│   │   ├── Login.jsx        # Authentication view
-│   │   ├── MyFarm.jsx       # Farmer portal
-│   │   ├── Register.jsx     # Registration flow
-│   │   ├── ThemeToggle.jsx  # Dark/Light mode engine
-│   │   └── index.css        # Tailwind v4 directives
-│   ├── package.json
-│   └── vite.config.js
-├── .gitignore
-└── README.md
+🛠️ Technology Stack
+Frontend Architecture:
 
-🚀 Technical Highlights
-Authentication: Secure JWT-based authentication using Django SimpleJWT.
+Framework: React 18 + Vite
 
-Dynamic Routing: Intelligent redirection after login based on user profile (Farmer vs. Admin).
+Styling: Tailwind CSS + Lucide React (Icons)
 
-Theming: Full manual dark/light mode toggle integrated with Tailwind CSS v4.
+Data Visualization: Recharts (Dynamic Bar Charts)
 
-Data Visualization: Real-time analytics and charts powered by recharts.
+Routing: React Router DOM
 
-Administrative Control: Full CRUD capabilities for administrators with CSV export functionality.
+Backend Architecture:
 
-🛠 Setup & Installation
-# Backend
-cd backend
+Framework: Django 6.0 + Django REST Framework (DRF)
 
-Create and activate venv: python -m venv venv
+Authentication: SimpleJWT (JSON Web Tokens)
 
-Install requirements: pip install -r requirements.txt
+Database: SQLite (Development) / PostgreSQL (Production)
 
-Apply migrations: python manage.py migrate
+API Integrations:
 
-Run server: python manage.py runserver
+OpenWeatherMap API (Live localized climate data)
 
-# Frontend
-cd client
+Africa's Talking API (SMS OTP logic & network broadcasts)
 
-Install dependencies: npm install
+📖 User Workflows: "Detailed to the Core"
+🧑‍🌾 1. The Farmer Navigation Guide
+The Farmer Portal is designed to function as a digital ledger and advisory hub.
 
-Start development: npm run dev
+A. Secure Onboarding & Authentication
+Registration: A farmer registers by providing their legal name, E.164-formatted phone number, subcounty (e.g., Mwatate, Voi), acreage, and selecting their active crops.
 
-⚙️ Configuration
-Dark Mode: Enabled via class-based toggling (.dark) configured in index.css.
+SMS 2FA Verification: Upon submission, the account is created in a "locked" state. The system pings the Africa's Talking API to send a secure 6-digit OTP to the farmer's phone.
 
-CORS: Ensure backend/core/settings.py includes your frontend origin (http://localhost:5173) in CORS_ALLOWED_ORIGINS.
+Activation: The farmer enters the OTP into the React interface. The backend verifies the code, unlocks the account, and permits login.
 
-Maintained as of June 2026. Built to empower Taita-Taveta agricultural stakeholders.
+JWT Login: The farmer logs in securely. Access and Refresh tokens are stored in local memory to securely authorize subsequent API requests.
+
+B. The Farmer Dashboard Experience
+Upon logging in, the farmer is greeted by a personalized, responsive dashboard containing several critical modules:
+
+Live Local Weather: Based on the farmer's registered subcounty, the system pulls live satellite data from OpenWeatherMap to display real-time temperature, humidity, wind speed, and dynamic weather icons.
+
+Farm Configuration: Farmers can view and seamlessly edit their farm's size (acreage) and update their active crop catalog via an intuitive checkbox interface.
+
+Activity & Expense Log: A full CRUD (Create, Read, Update, Delete) module where farmers log daily tasks (e.g., "Bought 5kg Maize Seeds") and their associated costs. Tasks can be toggled as "Complete/Pending".
+
+Financial Forecasting: The system automatically aggregates the logged expenses against a yield algorithm to generate a dynamic Bar Chart displaying Projected Revenue vs. Total Expenses vs. Net Profit.
+
+CSV Export: Farmers can instantly download their season's expense log as a neatly formatted .csv file for personal record-keeping or loan applications.
+
+Network Broadcasts: A live feed displaying county-wide or localized alerts dispatched by Admins (categorized as Weather, Market, or KALRO updates).
+
+Agronomy Support Desk: Farmers can submit detailed support tickets (e.g., identifying crop disease symptoms) directly to county agronomists, and track the status of their inquiries (Open, In Progress, Resolved).
+
+👨‍💻 2. The Administrator Navigation Guide
+The Admin interface is built to monitor system health, assist farmers, and broadcast critical data.
+
+A. Secure Access
+Administrators access the system via specialized Superuser credentials through the highly secure Django Admin portal and a dedicated React Admin Dashboard.
+
+B. The Admin Dashboard Experience
+Global Network Overview: Administrators can view aggregate statistics, including total registered farmers, total active acreage across the county, and the most commonly cultivated crops.
+
+Ticket Management System: Admins monitor incoming agronomy requests from farmers. They can review the issue, contact the farmer via their registered phone number, and manually update the ticket status (Open ➔ In Progress ➔ Resolved).
+
+Broadcast Campaign Control (Upcoming/Active): Admins can utilize the Africa's Talking integration to blast SMS alerts or internal dashboard notifications to specific subsets of farmers (e.g., sending a "Flash Flood Warning" exclusively to farmers registered in the Voi subcounty).
+
+User Auditing: Complete visibility into user registration data to identify system bottlenecks or flag fraudulent accounts.
+
+💻 Local Development Setup
+To run this project locally, you will need two separate terminal windows—one for the Django backend and one for the React frontend.
+
+1. Backend Setup (Django)
+Bash
+# Clone the repository
+git clone https://github.com/your-username/taita-farming-system.git
+cd taita-farming-system/backend
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run database migrations
+python manage.py makemigrations
+python manage.py migrate
+
+# Create a superuser account for Admin access
+python manage.py createsuperuser
+
+# Start the development server (Runs on port 8000)
+python manage.py runserver
+2. Frontend Setup (React/Vite)
+Bash
+# Open a new terminal window
+cd taita-farming-system/client
+
+# Install Node modules
+npm install
+
+# Start the Vite development server (Runs on port 5173)
+npm run dev
+🔐 Environment Variables
+For the application to function correctly, you must configure environment variables for both the backend and frontend.
+
+Backend (backend/.env):
+
+Ini, TOML
+SECRET_KEY=your_django_secret_key
+DEBUG=True
+OPENWEATHER_API_KEY=your_openweathermap_key
+SMS_USERNAME=sandbox
+SMS_API_KEY=your_africas_talking_api_key
+Frontend (client/.env):
+
+Ini, TOML
+VITE_API_BASE_URL=http://127.0.0.1:8000  # Change to your Render URL in production
+🛡️ Security Features
+Stateless Authorization: Secure JWT architecture preventing session hijacking.
+
+CORS Protection: Whitelisted cross-origin resource sharing strictly allowing Vercel and Localhost domains.
+
+Environment Isolation: Sensitive API keys (Weather, SMS) are strictly processed server-side via Django and never exposed to the client-side browser.
+
+Data Sanitization: Strict payload validation in Django REST Framework to prevent SQL injection and malformed data entries.
