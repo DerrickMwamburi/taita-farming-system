@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from django.db.models import Count, Sum, Avg     
 from .models import Farmer, Crop, FarmActivity, SystemAlert, SupportTicket, BackupLog
 from .serializers import FarmerSerializer, CropSerializer, SystemAlertSerializer, SupportTicketSerializer, BackupLogSerializer,AdminUserSerializer
-from .sms import send_registration_sms, broadcast_campaign_sms
+from .sms import send_registration_sms, broadcast_campaign_sms, send_otp_sms
 from rest_framework.decorators import action, api_view, permission_classes
 
 class CropViewSet(viewsets.ModelViewSet):
