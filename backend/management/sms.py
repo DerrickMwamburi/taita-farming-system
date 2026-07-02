@@ -57,3 +57,12 @@ def broadcast_campaign_sms(recipients_list, message):
     except Exception as e:
         logger.error(f"Failed to dispatch bulk SMS campaign: {str(e)}")
         return None
+
+def send_otp_sms(phone_number, otp_code):
+    """
+    Sends a 6-digit verification code to the new farmer to verify their phone number.
+    """
+    message = f"Welcome to AgriNet! Your verification code is: {otp_code}. Please enter this to activate your account."
+    
+    # Re-use the existing broadcast function to securely send the OTP
+    return broadcast_campaign_sms([phone_number], message)
