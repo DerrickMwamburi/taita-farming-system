@@ -142,7 +142,7 @@ export default function Register() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Phone Number (E.164)</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Phone Number (+254)</label>
                     <div className="relative">
                       <Phone className="absolute inset-y-0 left-0 pl-3 h-full w-8 text-gray-400 pointer-events-none" />
                       <input required type="tel" placeholder="+254700000000" className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#F8FAF9] dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#104330] focus:border-transparent text-sm transition-colors" value={formData.phone_number} onChange={e => setFormData({...formData, phone_number: e.target.value})} />
